@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPIB - Gestion des Entretiens</title>
+    <link href="css/tailwind.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <script src="lib/draggable.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="text-xl font-bold">SPIB</div>
+                <div class="hidden md:flex space-x-4">
+                    <a href="#" class="hover:text-gray-200" data-page="dashboard">Tableau de bord</a>
+                    <a href="#" class="hover:text-gray-200" data-page="employees">Employés</a>
+                    <a href="#" class="hover:text-gray-200" data-page="interviews">Entretiens</a>
+                    <a href="#" class="hover:text-gray-200" data-page="services">Services</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userInfo" class="text-sm"></span>
+                    <button id="logoutBtn" class="btn btn-secondary text-sm">Déconnexion</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Dashboard -->
+        <div id="dashboard" class="page-content">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-4">Entretiens à venir</h3>
+                    <div id="upcomingInterviews" class="space-y-4"></div>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-4">Actions requises</h3>
+                    <div id="requiredActions" class="space-y-4"></div>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-4">Statistiques</h3>
+                    <div id="statistics" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees Management -->
+        <div id="employees" class="page-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Gestion des Employés</h2>
+                <button class="btn btn-primary" id="addEmployeeBtn">Ajouter un employé</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-4">Filtres</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="label">Service</label>
+                            <select class="input" id="serviceFilter"></select>
+                        </div>
+                        <div>
+                            <label class="label">Pool</label>
+                            <select class="input" id="poolFilter"></select>
+                        </div>
+                        <div>
+                            <label class="label">Rôle</label>
+                            <select class="input" id="roleFilter"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-3">
+                    <div id="employeesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interviews Management -->
+        <div id="interviews" class="page-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="space-y-6">
+                    <div class="card">
+                        <h3 class="text-lg font-semibold mb-4">Actions disponibles</h3>
+                        <div class="space-y-4">
+                            <div class="draggable-card" draggable="true" data-action="entretien">
+                                <h4 class="font-semibold">Entretien</h4>
+                                <p class="text-sm text-gray-600">Entretien formel avec l'employé</p>
+                            </div>
+                            <div class="draggable-card" draggable="true" data-action="appel_bienveillant">
+                                <h4 class="font-semibold">Appel bienveillant</h4>
+                                <p class="text-sm text-gray-600">Prise de nouvelles et soutien</p>
+                            </div>
+                            <div class="draggable-card" draggable="true" data-action="welcome_back">
+                                <h4 class="font-semibold">Welcome Back</h4>
+                                <p class="text-sm text-gray-600">Entretien de retour</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-3">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="card">
+                            <h3 class="text-lg font-semibold mb-4">À planifier</h3>
+                            <div class="drop-zone" data-zone="to-schedule"></div>
+                        </div>
+                        <div class="card">
+                            <h3 class="text-lg font-semibold mb-4">En cours</h3>
+                            <div class="drop-zone" data-zone="in-progress"></div>
+                        </div>
+                        <div class="card">
+                            <h3 class="text-lg font-semibold mb-4">Terminé</h3>
+                            <div class="drop-zone" data-zone="completed"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Management -->
+        <div id="services" class="page-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Gestion des Services</h2>
+                <button class="btn btn-primary" id="addServiceBtn">Ajouter un service</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="servicesList"></div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+</body>
+</html>

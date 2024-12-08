@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Rediriger toutes les requêtes API vers index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+# Permettre l'accès aux fichiers statiques
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^((?!api/).*)$ public/$1 [L]
