@@ -51,7 +51,7 @@ if (window.location.pathname.includes('/public/views/login.php')) {
             
             const matricule = document.getElementById('matricule').value;
             const password = document.getElementById('password').value;
-            
+
             try {
                 const response = await fetch('/JS/SPIB/api/auth/login.php', {
                     method: 'POST',
@@ -63,33 +63,39 @@ if (window.location.pathname.includes('/public/views/login.php')) {
                         password: password
                     })
                 });
-                
+
                 const data = await response.json();
-                
-                if (data.success && data.token) {
-                    // Nettoyer tout ancien token
-                    localStorage.clear();
-                    // Sauvegarder le nouveau token
-                    localStorage.setItem('token', data.token);
+
+                if (data.success) {
+                    // Stocker le token JWT
+                    sessionStorage.setItem('token', data.token);
                     
-                    // Rediriger selon le rôle
-                    if (data.user.role === 'salarié') {
-                        window.location.href = '/JS/SPIB/dashboard/employee.php';
-                    } else if (data.user.role === 'manager') {
-                        window.location.href = '/JS/SPIB/dashboard/manager.php';
-                    } else if (data.user.role === 'admin') {
-                        window.location.href = '/JS/SPIB/dashboard/admin.php';
+                    // Redirection en fonction du rôle
+                    switch(data.user.role) {
+                        case 'PM':
+                            window.location.href = '/JS/SPIB/dashboard/manager.php';
+                            break;
+                        case 'EM':
+                            window.location.href = '/JS/SPIB/dashboard/manager.php';
+                            break;
+                        case 'DM':
+                            window.location.href = '/JS/SPIB/dashboard/manager.php';
+                            break;
+                        case 'RH':
+                            window.location.href = '/JS/SPIB/dashboard/rh.php';
+                            break;
+                        case 'salarié':
+                            window.location.href = '/JS/SPIB/dashboard/employee.php';
+                            break;
+                        default:
+                            alert('Rôle non reconnu');
                     }
                 } else {
-                    throw new Error(data.message || 'Identifiants incorrects');
+                    alert(data.message);
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur de connexion',
-                    text: error.message || 'Une erreur est survenue lors de la connexion'
-                });
+                alert('Erreur de connexion');
             }
         });
     });

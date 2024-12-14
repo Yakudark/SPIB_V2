@@ -1,25 +1,17 @@
 <?php
+session_start();
 require_once '../../config/database.php';
-require_once '../../middleware/auth.php';
 
 header('Content-Type: application/json');
 
+// Vérifier si l'utilisateur est connecté
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Non autorisé']);
+    exit;
+}
+
 try {
-    // Vérifier le token
-    $headers = getallheaders();
-    $token = isset($headers['Authorization']) ? str_replace('Bearer ', '', $headers['Authorization']) : null;
-    
-    if (!$token) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Token non fourni']);
-        exit;
-    }
-
-    // Décoder le token
-    $decoded = decodeJWT($token);
-    $user_id = $decoded->user_id;
-
-    // Récupérer les données de la requête
     $data = json_decode(file_get_contents('php://input'), true);
     
     if (!isset($data['date_debut']) || !isset($data['date_fin'])) {
@@ -28,6 +20,7 @@ try {
         exit;
     }
 
+    $user_id = $_SESSION['user_id'];
     $date_debut = $data['date_debut'];
     $date_fin = $data['date_fin'];
     $commentaire = $data['commentaire'] ?? null;
@@ -45,8 +38,9 @@ try {
         }
     }
 
-    // Vérifier si l'utilisateur a assez de jours de congés
     $pdo = getDBConnection();
+
+    // Vérifier si l'utilisateur a assez de jours de congés
     $stmt = $pdo->prepare("
         SELECT conges_restant 
         FROM conges 
@@ -64,10 +58,17 @@ try {
     // Insérer la demande de congés
     $stmt = $pdo->prepare("
         INSERT INTO demandes_conges 
-        (utilisateur_id, date_debut, date_fin, nb_jours, commentaire) 
-        VALUES (?, ?, ?, ?, ?)
+        (utilisateur_id, date_debut, date_fin, nb_jours, commentaire, statut, date_demande) 
+        VALUES (?, ?, ?, ?, ?, 'en_attente', NOW())
     ");
-    $stmt->execute([$user_id, $date_debut, $date_fin, $nb_jours, $commentaire]);
+    
+    $stmt->execute([
+        $user_id,
+        $date_debut,
+        $date_fin,
+        $nb_jours,
+        $commentaire
+    ]);
 
     echo json_encode([
         'success' => true,
@@ -78,5 +79,5 @@ try {
 } catch (Exception $e) {
     error_log('Erreur demande congés: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['error' => 'Erreur lors de la demande de congés']);
 }
