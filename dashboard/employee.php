@@ -104,7 +104,7 @@ if ($_SESSION['role'] !== 'salarié') {
             </div>
 
             <!-- Troisième ligne - Tableaux -->
-            <div class="grid grid-cols-3 gap-6">
+            <div class="grid grid-cols-2 gap-6 mb-8">
                 <!-- Mes Prochains Entretiens -->
                 <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4">Mes Prochains Entretiens</h3>
@@ -144,25 +144,28 @@ if ($_SESSION['role'] !== 'salarié') {
                         </table>
                     </div>
                 </div>
+            </div>
 
-                <!-- Mes Demandes -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Mes Demandes</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200" id="demandes-table">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <!-- Les données seront insérées ici dynamiquement -->
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- Quatrième ligne - Tableau des demandes -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Mes Demandes</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" id="demandes-table">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date demande</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date début</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date fin</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nb jours</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <!-- Les données seront insérées ici dynamiquement -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </main>
@@ -195,6 +198,23 @@ if ($_SESSION['role'] !== 'salarié') {
         </div>
     </div>
 
+    <!-- Modal de détails de la demande -->
+    <div id="detailsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Détails de la demande</h3>
+                    <button onclick="closeDetailsModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4" id="detailsContent">
+                    <!-- Le contenu sera inséré dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="/JS/SPIB/public/js/dashboard.js"></script>
     <script>
         function openVacationModal() {
@@ -205,11 +225,161 @@ if ($_SESSION['role'] !== 'salarié') {
             document.getElementById('vacationModal').classList.add('hidden');
         }
 
+        function openDetailsModal() {
+            document.getElementById('detailsModal').classList.remove('hidden');
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.add('hidden');
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('fr-FR', options);
+        }
+
+        function getStatusBadgeClass(statut) {
+            switch(statut) {
+                case 'en_attente':
+                    return 'bg-yellow-100 text-yellow-800';
+                case 'approuve':
+                    return 'bg-green-100 text-green-800';
+                case 'refuse':
+                    return 'bg-red-100 text-red-800';
+                default:
+                    return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function getStatusText(statut) {
+            switch(statut) {
+                case 'en_attente':
+                    return 'En attente';
+                case 'approuve':
+                    return 'Approuvé';
+                case 'refuse':
+                    return 'Refusé';
+                default:
+                    return statut;
+            }
+        }
+
+        function showDetails(demande) {
+            const detailsContent = document.getElementById('detailsContent');
+            detailsContent.innerHTML = `
+                <div class="bg-gray-50 p-4 rounded-lg space-y-3">
+                    <div>
+                        <span class="font-semibold">Date de la demande:</span>
+                        <span class="ml-2">${formatDate(demande.date_demande)}</span>
+                    </div>
+                    <div>
+                        <span class="font-semibold">Période:</span>
+                        <span class="ml-2">Du ${formatDate(demande.date_debut)} au ${formatDate(demande.date_fin)}</span>
+                    </div>
+                    <div>
+                        <span class="font-semibold">Nombre de jours:</span>
+                        <span class="ml-2">${demande.nb_jours} jour${demande.nb_jours > 1 ? 's' : ''}</span>
+                    </div>
+                    <div>
+                        <span class="font-semibold">Statut:</span>
+                        <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(demande.statut)}">
+                            ${getStatusText(demande.statut)}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="font-semibold">Commentaire:</span>
+                        <p class="mt-1 text-sm text-gray-600">${demande.commentaire || 'Aucun commentaire'}</p>
+                    </div>
+                    ${demande.reponse_commentaire ? `
+                    <div>
+                        <span class="font-semibold">Réponse:</span>
+                        <p class="mt-1 text-sm text-gray-600">${demande.reponse_commentaire}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            openDetailsModal();
+        }
+
+        async function loadConges() {
+            try {
+                const response = await fetch('/JS/SPIB/api/conges/liste.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.querySelector('#demandes-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    data.demandes.forEach(demande => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">${formatDate(demande.date_demande)}</td>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">${formatDate(demande.date_debut)}</td>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">${formatDate(demande.date_fin)}</td>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">${demande.nb_jours}</td>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Congés</td>
+                            <td class="px-3 py-2 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(demande.statut)}">
+                                    ${getStatusText(demande.statut)}
+                                </span>
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm">
+                                <div class="flex space-x-2">
+                                    <button onclick='showDetails(${JSON.stringify(demande)})' class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    ${demande.statut === 'en_attente' ? `
+                                        <button onclick='deleteRequest(${demande.id})' class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Mettre à jour le compteur de demandes
+                    document.getElementById('demandes-count').textContent = data.demandes.length;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        async function deleteRequest(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette demande ?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/JS/SPIB/api/conges/supprimer.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('Demande supprimée avec succès');
+                    loadConges(); // Recharger le tableau des demandes
+                } else {
+                    alert('Erreur : ' + (result.error || 'Erreur lors de la suppression'));
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la suppression de la demande');
+            }
+        }
+
         document.getElementById('vacationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             
-            // Créer l'objet de données
             const data = {
                 date_debut: formData.get('start_date'),
                 date_fin: formData.get('end_date'),
@@ -230,7 +400,8 @@ if ($_SESSION['role'] !== 'salarié') {
                 if (response.ok) {
                     alert('Demande envoyée avec succès');
                     closeVacationModal();
-                    loadDashboardStats(); // Recharger les statistiques
+                    loadConges(); // Recharger le tableau des demandes
+                    this.reset(); // Réinitialiser le formulaire
                 } else {
                     alert('Erreur : ' + (result.error || 'Erreur lors de l\'envoi de la demande'));
                 }
@@ -239,6 +410,9 @@ if ($_SESSION['role'] !== 'salarié') {
                 alert('Erreur lors de l\'envoi de la demande');
             }
         });
+
+        // Charger les demandes au chargement de la page
+        document.addEventListener('DOMContentLoaded', loadConges);
     </script>
 </body>
 </html>
