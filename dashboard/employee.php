@@ -302,6 +302,49 @@ if ($_SESSION['role'] !== 'salarié') {
             openDetailsModal();
         }
 
+        async function deleteRequest(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette demande ?')) {
+                return;
+            }
+
+            try {
+                console.log('Tentative de suppression de la demande:', id);
+                
+                const response = await fetch('/JS/SPIB/api/conges/supprimer.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+
+                const responseText = await response.text();
+                console.log('Réponse brute:', responseText);
+
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (e) {
+                    console.error('Erreur de parsing JSON:', e);
+                    alert('Erreur de réponse du serveur');
+                    return;
+                }
+
+                console.log('Résultat:', result);
+                
+                if (result.success) {
+                    console.log('Suppression réussie');
+                    loadConges();
+                } else {
+                    console.error('Erreur:', result.error);
+                    alert(result.error || 'Erreur lors de la suppression');
+                }
+            } catch (error) {
+                console.error('Erreur de requête:', error);
+                alert('Erreur lors de la suppression');
+            }
+        }
+
         async function loadConges() {
             try {
                 const response = await fetch('/JS/SPIB/api/conges/liste.php');
@@ -348,34 +391,6 @@ if ($_SESSION['role'] !== 'salarié') {
             }
         }
 
-        async function deleteRequest(id) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cette demande ?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch('/JS/SPIB/api/conges/supprimer.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id: id })
-                });
-
-                const result = await response.json();
-                
-                if (response.ok) {
-                    alert('Demande supprimée avec succès');
-                    loadConges(); // Recharger le tableau des demandes
-                } else {
-                    alert('Erreur : ' + (result.error || 'Erreur lors de la suppression'));
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                alert('Erreur lors de la suppression de la demande');
-            }
-        }
-
         document.getElementById('vacationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
@@ -398,7 +413,6 @@ if ($_SESSION['role'] !== 'salarié') {
                 const result = await response.json();
                 
                 if (response.ok) {
-                    alert('Demande envoyée avec succès');
                     closeVacationModal();
                     loadConges(); // Recharger le tableau des demandes
                     this.reset(); // Réinitialiser le formulaire

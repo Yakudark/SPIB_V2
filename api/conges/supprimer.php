@@ -3,48 +3,61 @@ session_start();
 header('Content-Type: application/json');
 
 require_once '../../config/database.php';
+require_once '../../includes/db.php';
+
+// Log pour vérifier la session
+error_log("Session user_id: " . ($_SESSION['user_id'] ?? 'non défini'));
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Non autorisé']);
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'error' => 'Méthode non autorisée']);
-    exit;
-}
+// Log pour vérifier les données reçues
+$rawInput = file_get_contents('php://input');
+error_log("Données reçues: " . $rawInput);
 
-$data = json_decode(file_get_contents('php://input'), true);
-$demandeId = $data['id'] ?? null;
+$data = json_decode($rawInput, true);
+$demandeId = intval($data['id']);
 
-if (!$demandeId) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'ID de demande manquant']);
-    exit;
-}
+error_log("ID demande: " . $demandeId);
+error_log("User ID: " . $_SESSION['user_id']);
 
 try {
-    $pdo = getConnection();
+    $db = new DB();
+    $pdo = $db->connect();
     
-    // Vérifier que la demande appartient bien à l'utilisateur
-    $stmt = $pdo->prepare("SELECT * FROM demandes_conges WHERE id = ? AND user_id = ?");
-    $stmt->execute([$demandeId, $_SESSION['user_id']]);
+    // Vérifier d'abord si la demande existe
+    $checkStmt = $pdo->prepare("SELECT id, statut FROM demandes_conges WHERE id = ? AND user_id = ?");
+    $checkStmt->execute([$demandeId, $_SESSION['user_id']]);
+    $demande = $checkStmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!$stmt->fetch()) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'error' => 'Demande non trouvée ou non autorisée']);
+    error_log("Demande trouvée: " . json_encode($demande));
+    
+    if (!$demande) {
+        echo json_encode(['success' => false, 'error' => 'Demande non trouvée']);
+        exit;
+    }
+    
+    if ($demande['statut'] !== 'en_attente') {
+        echo json_encode(['success' => false, 'error' => 'La demande ne peut plus être supprimée']);
         exit;
     }
     
     // Supprimer la demande
-    $stmt = $pdo->prepare("DELETE FROM demandes_conges WHERE id = ? AND user_id = ?");
+    $stmt = $pdo->prepare("DELETE FROM demandes_conges WHERE id = ? AND user_id = ? AND statut = 'en_attente'");
     $stmt->execute([$demandeId, $_SESSION['user_id']]);
     
-    echo json_encode(['success' => true, 'message' => 'Demande supprimée avec succès']);
+    $rowCount = $stmt->rowCount();
+    error_log("Nombre de lignes supprimées: " . $rowCount);
+    
+    if ($rowCount > 0) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Échec de la suppression']);
+    }
     
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Erreur lors de la suppression']);
+    error_log("Erreur PDO: " . $e->getMessage());
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
