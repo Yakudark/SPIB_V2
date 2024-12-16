@@ -15,41 +15,41 @@ try {
     
     $query = "
         SELECT 
-            a.id,
-            a.agent_id,
-            u.nom as agent_nom,
-            u.prenom as agent_prenom,
-            at.nom as type_action,
-            a.date_action,
-            a.statut,
-            a.commentaire
-        FROM actions a
-        JOIN utilisateurs u ON a.agent_id = u.id
-        JOIN action_types at ON a.type_action_id = at.id
-        WHERE a.pm_id = :pm_id
+            v.id,
+            v.user_id,
+            u.nom,
+            u.prenom,
+            v.date_debut,
+            v.date_fin,
+            v.type_conge,
+            v.statut,
+            v.commentaire
+        FROM vacations v
+        JOIN utilisateurs u ON v.user_id = u.id
+        WHERE u.pm_id = :pm_id
     ";
     
     $params = ['pm_id' => $_SESSION['user_id']];
     
-    // Ajouter le filtre par agent si spécifié
+    // Filtrer par agent si spécifié
     if (isset($_GET['agent_id']) && !empty($_GET['agent_id'])) {
-        $query .= " AND a.agent_id = :agent_id";
+        $query .= " AND v.user_id = :agent_id";
         $params['agent_id'] = $_GET['agent_id'];
     }
     
-    $query .= " ORDER BY a.date_action DESC";
+    $query .= " ORDER BY v.date_debut DESC";
     
     $stmt = $pdo->prepare($query);
     $stmt->execute($params);
     
-    $actions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode($actions);
+    $vacations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode($vacations);
     
 } catch (PDOException $e) {
-    error_log("Erreur actions.php: " . $e->getMessage());
+    error_log("Erreur vacations.php: " . $e->getMessage());
     echo json_encode([
         'success' => false, 
-        'error' => 'Erreur lors de la récupération des actions',
+        'error' => 'Erreur lors de la récupération des demandes de vacances',
         'debug' => $e->getMessage()
     ]);
 }
