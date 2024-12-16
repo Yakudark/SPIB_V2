@@ -217,6 +217,58 @@ if ($_SESSION['role'] !== 'salarié') {
 
     <script src="/JS/SPIB/public/js/dashboard.js"></script>
     <script>
+        // Fonction pour charger les entretiens
+        async function loadEntretiens() {
+            try {
+                const response = await fetch('/JS/SPIB/api/employee/actions.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.querySelector('#entretiens-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    // Mettre à jour le compteur
+                    document.getElementById('entretiens-count').textContent = data.actions.length;
+                    
+                    data.actions.forEach(action => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-3 py-2 whitespace-nowrap">
+                                ${new Date(action.date_action).toLocaleDateString('fr-FR')}
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap">
+                                ${action.type_action}
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap">
+                                ${action.pm_name}
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap">
+                                ${action.commentaire ? 
+                                    `<button onclick="showComment('${action.commentaire}')" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>` 
+                                    : ''}
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des entretiens:', error);
+            }
+        }
+
+        // Fonction pour afficher le commentaire
+        function showComment(comment) {
+            alert(comment);
+        }
+
+        // Charger les entretiens au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEntretiens();
+            loadConges();
+        });
+
         function openVacationModal() {
             document.getElementById('vacationModal').classList.remove('hidden');
         }
@@ -424,9 +476,6 @@ if ($_SESSION['role'] !== 'salarié') {
                 alert('Erreur lors de l\'envoi de la demande');
             }
         });
-
-        // Charger les demandes au chargement de la page
-        document.addEventListener('DOMContentLoaded', loadConges);
     </script>
 </body>
 </html>
