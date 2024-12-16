@@ -1,7 +1,26 @@
 <?php
 session_start();
-if (isset($_SESSION['user_id'])) {
-    header('Location: /JS/SPIB/dashboard/employee.php');
+if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+    $role = strtoupper($_SESSION['role']);
+    switch ($role) {
+        case 'SALARIÉ':
+        case 'SALARIE':
+            header('Location: /JS/SPIB/dashboard/employee.php');
+            break;
+        case 'MANAGER':
+            header('Location: /JS/SPIB/dashboard/manager.php');
+            break;
+        case 'ADMIN':
+            header('Location: /JS/SPIB/dashboard/admin.php');
+            break;
+        case 'PM':
+            header('Location: /JS/SPIB/dashboard/pm.php');
+            break;
+        default:
+            // Si le rôle n'est pas reconnu, déconnecter l'utilisateur
+            session_destroy();
+            break;
+    }
     exit;
 }
 ?>
@@ -102,12 +121,32 @@ if (isset($_SESSION['user_id'])) {
                         timer: 1500,
                         showConfirmButton: false
                     }).then(() => {
-                        if (data.user.role === 'salarié') {
-                            window.location.href = '/JS/SPIB/dashboard/employee.php';
-                        } else if (data.user.role === 'manager') {
-                            window.location.href = '/JS/SPIB/dashboard/manager.php';
-                        } else if (data.user.role === 'admin') {
-                            window.location.href = '/JS/SPIB/dashboard/admin.php';
+                        // Convertir le rôle en majuscules pour la comparaison
+                        const role = data.user.role.toUpperCase();
+                        console.log('Role:', role); // Debug
+                        
+                        switch(role) {
+                            case 'SALARIÉ':
+                            case 'SALARIE':
+                                window.location.href = '/JS/SPIB/dashboard/employee.php';
+                                break;
+                            case 'MANAGER':
+                                window.location.href = '/JS/SPIB/dashboard/manager.php';
+                                break;
+                            case 'ADMIN':
+                                window.location.href = '/JS/SPIB/dashboard/admin.php';
+                                break;
+                            case 'PM':
+                                window.location.href = '/JS/SPIB/dashboard/pm.php';
+                                break;
+                            default:
+                                console.error('Rôle non reconnu:', role);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erreur de redirection',
+                                    text: 'Rôle non reconnu',
+                                    confirmButtonColor: '#1a365d'
+                                });
                         }
                     });
                 } else {

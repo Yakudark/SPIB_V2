@@ -28,12 +28,24 @@ if (window.location.pathname.includes('/public/views/login.php')) {
                 
                 if (response.ok && data.success) {
                     // Rediriger selon le rôle
-                    if (data.role === 'salarié') {
-                        window.location.href = '/JS/SPIB/dashboard/employee.php';
-                    } else if (data.role === 'manager') {
-                        window.location.href = '/JS/SPIB/dashboard/manager.php';
-                    } else if (data.role === 'admin') {
-                        window.location.href = '/JS/SPIB/dashboard/admin.php';
+                    const role = data.role.toUpperCase(); // Convertir en majuscules pour la comparaison
+                    switch(role) {
+                        case 'SALARIÉ':
+                        case 'SALARIE':
+                            window.location.href = '/JS/SPIB/dashboard/employee.php';
+                            break;
+                        case 'MANAGER':
+                            window.location.href = '/JS/SPIB/dashboard/manager.php';
+                            break;
+                        case 'ADMIN':
+                            window.location.href = '/JS/SPIB/dashboard/admin.php';
+                            break;
+                        case 'PM':
+                            window.location.href = '/JS/SPIB/dashboard/pm.php';
+                            break;
+                        default:
+                            console.error('Rôle non reconnu:', role);
+                            alert('Erreur de redirection: rôle non reconnu');
                     }
                     return;
                 }
@@ -51,7 +63,7 @@ if (window.location.pathname.includes('/public/views/login.php')) {
             
             const matricule = document.getElementById('matricule').value;
             const password = document.getElementById('password').value;
-
+            
             try {
                 const response = await fetch('/JS/SPIB/api/auth/login.php', {
                     method: 'POST',
@@ -63,39 +75,48 @@ if (window.location.pathname.includes('/public/views/login.php')) {
                         password: password
                     })
                 });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Stocker le token JWT
-                    sessionStorage.setItem('token', data.token);
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    localStorage.setItem('token', result.token);
                     
-                    // Redirection en fonction du rôle
-                    switch(data.user.role) {
-                        case 'PM':
-                            window.location.href = '/JS/SPIB/dashboard/manager.php';
-                            break;
-                        case 'EM':
-                            window.location.href = '/JS/SPIB/dashboard/manager.php';
-                            break;
-                        case 'DM':
-                            window.location.href = '/JS/SPIB/dashboard/manager.php';
-                            break;
-                        case 'RH':
-                            window.location.href = '/JS/SPIB/dashboard/rh.php';
-                            break;
-                        case 'salarié':
+                    // Rediriger selon le rôle
+                    console.log('Role:', result.user.role); // Debug
+                    
+                    const role = result.user.role.toUpperCase(); // Convertir en majuscules pour la comparaison
+                    
+                    switch(role) {
+                        case 'SALARIÉ':
+                        case 'SALARIE':
                             window.location.href = '/JS/SPIB/dashboard/employee.php';
                             break;
+                        case 'MANAGER':
+                            window.location.href = '/JS/SPIB/dashboard/manager.php';
+                            break;
+                        case 'ADMIN':
+                            window.location.href = '/JS/SPIB/dashboard/admin.php';
+                            break;
+                        case 'PM':
+                            window.location.href = '/JS/SPIB/dashboard/pm.php';
+                            break;
                         default:
-                            alert('Rôle non reconnu');
+                            console.error('Rôle non reconnu:', role);
+                            alert('Erreur de redirection: rôle non reconnu');
                     }
                 } else {
-                    alert(data.message);
+                    // Afficher le message d'erreur
+                    const errorDiv = document.getElementById('error-message');
+                    if (errorDiv) {
+                        errorDiv.textContent = result.message || 'Erreur de connexion';
+                        errorDiv.classList.remove('hidden');
+                    } else {
+                        alert(result.message || 'Erreur de connexion');
+                    }
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Erreur de connexion');
+                alert('Erreur lors de la connexion');
             }
         });
     });

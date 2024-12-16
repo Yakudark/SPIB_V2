@@ -8,6 +8,9 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
+// Debug log
+error_log("Login attempt started");
+
 function generateJWT($user_id, $role) {
     $payload = [
         'user_id' => $user_id,
@@ -30,8 +33,12 @@ function generateJWT($user_id, $role) {
 try {
     $data = json_decode(file_get_contents('php://input'), true);
     
+    // Debug log
+    error_log("Received data: " . print_r($data, true));
+    
     if (!isset($data['matricule']) || !isset($data['password'])) {
         http_response_code(400);
+        error_log("Missing matricule or password");
         echo json_encode(['success' => false, 'message' => 'Matricule et mot de passe requis']);
         exit;
     }
@@ -49,6 +56,9 @@ try {
     $stmt->execute([$matricule, $password]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Debug log
+    error_log("Query result: " . print_r($user, true));
+
     if ($user) {
         $updateQuery = "UPDATE connexions SET derniere_connexion = NOW() WHERE utilisateur_id = ?";
         $updateStmt = $db->prepare($updateQuery);
@@ -60,10 +70,13 @@ try {
         $_SESSION['nom'] = $user['nom'];
         $_SESSION['prenom'] = $user['prenom'];
 
+        // Debug log
+        error_log("Session set: " . print_r($_SESSION, true));
+
         // Générer le token JWT
         $token = generateJWT($user['utilisateur_id'], $user['role']);
 
-        echo json_encode([
+        $response = [
             'success' => true,
             'message' => 'Connexion réussie',
             'token' => $token,
@@ -74,12 +87,19 @@ try {
                 'nom' => $user['nom'],
                 'prenom' => $user['prenom']
             ]
-        ]);
+        ];
+        
+        // Debug log
+        error_log("Sending response: " . print_r($response, true));
+        
+        echo json_encode($response);
     } else {
         http_response_code(401);
+        error_log("Authentication failed for matricule: $matricule");
         echo json_encode(['success' => false, 'message' => 'Matricule ou mot de passe incorrect']);
     }
 } catch(PDOException $e) {
+    error_log("Database error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Erreur de connexion à la base de données']);
 }
