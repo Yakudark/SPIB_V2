@@ -16,6 +16,9 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
         case 'PM':
             header('Location: /JS/SPIB/dashboard/pm.php');
             break;
+        case 'EM':
+            header('Location: /JS/SPIB/dashboard/em.php');
+            break;
         default:
             // Si le rôle n'est pas reconnu, déconnecter l'utilisateur
             session_destroy();
@@ -138,6 +141,9 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
                                 break;
                             case 'PM':
                                 window.location.href = '/JS/SPIB/dashboard/pm.php';
+                                break;
+                            case 'EM':
+                                window.location.href = '/JS/SPIB/dashboard/em.php';
                                 break;
                             default:
                                 console.error('Rôle non reconnu:', role);

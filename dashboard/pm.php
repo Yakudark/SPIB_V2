@@ -96,7 +96,15 @@ $pdo = $database->getConnection();
             <select id="selectedAgentVacation" class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                 <option value="">Tous les salariés</option>
             </select>
+            <!-- Filtre de statut -->
+        <select id="statusFilter" class="block w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" onchange="loadConges()">
+            <option value="">Tous les statuts</option>
+            <option value="en_attente">En attente</option>
+            <option value="approuve">Approuvé</option>
+            <option value="refuse">Refusé</option>
+        </select>
         </div>
+        
     </div>
     
     <div class="overflow-x-auto">
@@ -336,10 +344,17 @@ $pdo = $database->getConnection();
         // Fonction pour charger les demandes de congés
         function loadConges() {
             const selectedAgent = document.getElementById('selectedAgentVacation').value;
-            const url = selectedAgent 
-                ? `/JS/SPIB/api/pm/conges.php?agent_id=${selectedAgent}`
-                : '/JS/SPIB/api/pm/conges.php';
-
+    const statusFilter = document.getElementById('statusFilter').value;
+    let url = '/JS/SPIB/api/pm/conges.php';
+    
+    // Ajout des paramètres à l'URL
+    const params = new URLSearchParams();
+    if (selectedAgent) params.append('agent_id', selectedAgent);
+    if (statusFilter) params.append('status', statusFilter);
+    
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
             fetch(url)
                 .then(response => response.json())
                 .then(conges => {

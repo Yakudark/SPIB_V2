@@ -19,7 +19,8 @@ $default_pages = [
     'SALARIE' => '/JS/SPIB/dashboard/employee.php',
     'MANAGER' => '/JS/SPIB/dashboard/manager.php',
     'ADMIN' => '/JS/SPIB/dashboard/admin.php',
-    'PM' => '/JS/SPIB/dashboard/pm.php'
+    'PM' => '/JS/SPIB/dashboard/pm.php',
+    'EM' => '/JS/SPIB/dashboard/em.php'
 ];
 
 // Si le rôle n'est pas reconnu ou si la page actuelle n'est pas la page par défaut du rôle
