@@ -128,6 +128,7 @@ $pdo = $database->getConnection();
                             <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nb jours</th>
                             <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                             <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -358,12 +359,59 @@ $pdo = $database->getConnection();
                                         ${demande.statut}
                                     </span>
                                 </td>
+                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                    ${demande.statut === 'en_attente' ? `
+                                        <div class="flex space-x-2">
+                                            <button onclick="updateCongeStatus('${demande.id}', 'approuve')" 
+                                                class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button onclick="updateCongeStatus('${demande.id}', 'refuse')" 
+                                                class="text-red-600 hover:text-red-900">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    ` : ''}
+                                </td>
                             `;
                             tbody.appendChild(row);
                         });
                     }
                 })
                 .catch(error => console.error('Erreur:', error));
+        }
+
+        // Fonction pour mettre à jour le statut d'une demande de congés
+        function updateCongeStatus(congeId, newStatus) {
+            console.log('Mise à jour du congé:', congeId, 'avec le statut:', newStatus);
+            
+            fetch('/JS/SPIB/api/em/update_conge.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    conge_id: congeId,
+                    status: newStatus
+                })
+            })
+            .then(response => {
+                console.log('Réponse reçue:', response);
+                return response.json();
+            })
+            .then(result => {
+                console.log('Résultat:', result);
+                if (result.success) {
+                    // Recharger la liste des congés
+                    loadConges();
+                } else {
+                    alert('Erreur lors de la mise à jour du statut: ' + (result.error || 'Erreur inconnue'));
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la mise à jour du statut');
+            });
         }
 
         function getStatusClass(status) {

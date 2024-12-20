@@ -1,16 +1,26 @@
 // Fonction pour mettre à jour les statistiques dans l'interface
 function updateStats(data) {
-    document.getElementById('entretiens-count').textContent = data.stats?.entretiens?.total || '0';
-    document.getElementById('conges-count').textContent = data.stats?.conges?.restant || '0';
-    document.getElementById('formations-count').textContent = data.stats?.formations?.total || '0';
-    document.getElementById('documents-count').textContent = data.stats?.documents?.total || '0';
-    document.getElementById('demandes-count').textContent = data.stats?.demandes?.total || '0';
+    // Mettre à jour les compteurs uniquement s'ils existent
+    const elements = {
+        'absences-count': data.stats?.absences || '0',
+        'entretiens-pm': data.stats?.entretiens?.PM || '0',
+        'entretiens-em': data.stats?.entretiens?.EM || '0',
+        'entretiens-dm': data.stats?.entretiens?.DM || '0'
+    };
+
+    // Mettre à jour chaque élément s'il existe
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    });
 }
 
 // Fonction pour charger les statistiques
 async function loadDashboardStats() {
     try {
-        const response = await fetch('/JS/SPIB/api/dashboard/employee_stats.php', {
+        const response = await fetch('/JS/SPIB/api/employee/absences_stats.php', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -22,12 +32,9 @@ async function loadDashboardStats() {
         }
 
         const data = await response.json();
-        updateStats(data);
-        
-        // Charger les données des tableaux
-        if (data.entretiens) updateEntretiensTable(data.entretiens);
-        if (data.formations) updateFormationsTable(data.formations);
-        if (data.demandes) updateDemandesTable(data.demandes);
+        if (data.success) {
+            updateStats(data);
+        }
     } catch (error) {
         console.error('Erreur:', error);
     }

@@ -13,28 +13,58 @@ try {
     $database = new Database();
     $pdo = $database->getConnection();
     
-    $query = "
+    // Récupérer les actions planifiées
+    $queryActions = "
         SELECT 
+            'action' as type,
             a.id,
-            a.date_action,
+            a.date_action as date,
             at.nom as type_action,
             a.commentaire,
             a.statut,
-            CONCAT(u.prenom, ' ', u.nom) as pm_name
+            CONCAT(u.prenom, ' ', u.nom) as manager_name,
+            'PM' as manager_role
         FROM actions a
         JOIN action_types at ON a.type_action_id = at.id
         JOIN utilisateurs u ON a.pm_id = u.id
         WHERE a.agent_id = :agent_id
-        AND a.date_action >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        AND a.date_action >= CURDATE()
         AND a.statut = 'planifie'
-        ORDER BY a.date_action ASC
     ";
     
-    $stmt = $pdo->prepare($query);
-    $stmt->execute(['agent_id' => $_SESSION['user_id']]);
+    // Récupérer les absences
+    $queryAbsences = "
+        SELECT 
+            'absence' as type,
+            a.id,
+            a.date_absence as date,
+            'Absence' as type_action,
+            a.motif as commentaire,
+            NULL as statut,
+            CONCAT(u.prenom, ' ', u.nom) as manager_name,
+            u.role as manager_role
+        FROM absences a
+        JOIN utilisateurs u ON a.signale_par_id = u.id
+        WHERE a.utilisateur_id = :agent_id
+        AND a.date_absence >= CURDATE()
+    ";
     
+    // Exécuter les requêtes
+    $stmt = $pdo->prepare($queryActions);
+    $stmt->execute(['agent_id' => $_SESSION['user_id']]);
     $actions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode(['success' => true, 'actions' => $actions]);
+    
+    $stmt = $pdo->prepare($queryAbsences);
+    $stmt->execute(['agent_id' => $_SESSION['user_id']]);
+    $absences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Combiner et trier les résultats
+    $evenements = array_merge($actions, $absences);
+    usort($evenements, function($a, $b) {
+        return strtotime($a['date']) - strtotime($b['date']);
+    });
+    
+    echo json_encode(['success' => true, 'actions' => $evenements]);
     
 } catch (PDOException $e) {
     error_log("Erreur employee/actions.php: " . $e->getMessage());

@@ -15,43 +15,50 @@ try {
     $database = new Database();
     $pdo = $database->getConnection();
     
-    $query = "
-        SELECT 
-            dc.*,
-            u.nom,
-            u.prenom,
-            u.role
-        FROM demandes_conges dc
-        JOIN utilisateurs u ON dc.utilisateur_id = u.id
-        WHERE u.em_id = :em_id
-    ";
-    
+    $conditions = ['u.em_id = :em_id'];
     $params = ['em_id' => $_SESSION['user_id']];
     
-    // Filtrer par agent si spécifié
+    if (isset($_GET['pool']) && !empty($_GET['pool'])) {
+        $conditions[] = 'u.pool = :pool';
+        $params['pool'] = $_GET['pool'];
+    }
+    
     if (isset($_GET['agent_id']) && !empty($_GET['agent_id'])) {
-        $query .= " AND dc.utilisateur_id = :agent_id";
+        $conditions[] = 'dc.utilisateur_id = :agent_id';
         $params['agent_id'] = $_GET['agent_id'];
     }
     
-    // Filtrer par statut si spécifié
     if (isset($_GET['status']) && !empty($_GET['status'])) {
-        $query .= " AND dc.statut = :status";
+        $conditions[] = 'dc.statut = :status';
         $params['status'] = $_GET['status'];
     }
     
-    $query .= " ORDER BY dc.date_demande DESC";
+    $whereClause = implode(' AND ', $conditions);
+    
+    $query = "
+        SELECT 
+            dc.*,
+            u.prenom,
+            u.nom,
+            CONCAT(u.prenom, ' ', u.nom) as agent_name
+        FROM demandes_conges dc
+        JOIN utilisateurs u ON dc.utilisateur_id = u.id
+        WHERE $whereClause
+        ORDER BY dc.date_demande DESC
+    ";
     
     $stmt = $pdo->prepare($query);
     $stmt->execute($params);
     
     $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
     echo json_encode(['success' => true, 'conges' => $conges]);
     
 } catch (PDOException $e) {
     error_log("Erreur em/conges.php: " . $e->getMessage());
+    http_response_code(500);
     echo json_encode([
         'success' => false, 
-        'error' => 'Erreur lors de la récupération des demandes de congés'
+        'error' => 'Erreur lors de la récupération des congés'
     ]);
 }
