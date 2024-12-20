@@ -13,38 +13,38 @@ try {
     $database = new Database();
     $pdo = $database->getConnection();
     
-    // Récupérer les actions planifiées
+    // Récupérer les absences
     $query = "
         SELECT 
             a.id,
-            a.date_action as date,
-            at.nom as type_action,
+            a.date_debut,
+            a.date_fin,
             a.commentaire,
-            a.statut,
-            CONCAT(u.prenom, ' ', u.nom) as manager_name
-        FROM actions a
-        JOIN action_types at ON a.type_action_id = at.id
-        JOIN utilisateurs u ON a.pm_id = u.id
+            DATEDIFF(IFNULL(a.date_fin, '2999-12-31'), a.date_debut) + 1 as nombre_jours,
+            COUNT(*) OVER() as total_absences
+        FROM absences a
         WHERE a.agent_id = :agent_id
-        AND a.date_action >= CURDATE()
-        AND a.statut = 'planifie'
-        ORDER BY a.date_action ASC
+        ORDER BY a.date_debut DESC
     ";
     
     $stmt = $pdo->prepare($query);
     $stmt->execute(['agent_id' => $_SESSION['user_id']]);
-    $actions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $absences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Calculer le nombre total d'absences
+    $total_absences = $absences[0]['total_absences'] ?? 0;
     
     echo json_encode([
         'success' => true,
-        'actions' => $actions
+        'absences' => $absences,
+        'total_absences' => $total_absences
     ]);
     
 } catch (PDOException $e) {
-    error_log("Erreur dans actions.php: " . $e->getMessage());
+    error_log("Erreur dans absences.php: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'error' => 'Erreur lors de la récupération des actions',
+        'error' => 'Erreur lors de la récupération des absences',
         'debug' => $e->getMessage()
     ]);
 }

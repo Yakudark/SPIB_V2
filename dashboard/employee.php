@@ -60,7 +60,7 @@ if ($_SESSION['role'] !== 'salarié') {
             </div>
 
             <!-- Deuxième ligne - Statistiques -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <!-- Carte Jours de congés -->
                 <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="text-lg font-semibold text-gray-700 mb-2">Jours de congé</h3>
@@ -73,25 +73,6 @@ if ($_SESSION['role'] !== 'salarié') {
                                 </div>
                             </div>
                             <i class="fas fa-calendar ml-4 text-green-400"></i>
-                        </div>
-                        <button onclick="openVacationModal()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm">
-                            <i class="fas fa-plus mr-1"></i> Demande
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Carte Demandes -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Demandes</h3>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="text-center">
-                                <span class="text-3xl font-bold text-blue-600" id="demandes-count">0</span>
-                                <div class="text-xs text-gray-500 mt-1">
-                                    <span id="demandes-details">En attente</span>
-                                </div>
-                            </div>
-                            <i class="fas fa-file-alt ml-4 text-blue-400"></i>
                         </div>
                         <div class="text-sm">
                             <div class="text-green-600"><i class="fas fa-check"></i> <span id="demandes-approuvees">0</span></div>
@@ -107,7 +88,9 @@ if ($_SESSION['role'] !== 'salarié') {
                         <div class="flex items-center">
                             <div class="text-center">
                                 <span class="text-3xl font-bold text-red-600" id="absences-count">0</span>
-                                <div class="text-xs text-gray-500 mt-1">absences</div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    <span id="absences-jours">(0 jours)</span>
+                                </div>
                             </div>
                             <i class="fas fa-user-clock ml-4 text-red-400"></i>
                         </div>
@@ -141,10 +124,7 @@ if ($_SESSION['role'] !== 'salarié') {
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-700">Mes Prochains Entretiens</h3>
                         <button onclick="openEntretiensStats()" class="text-gray-400 hover:text-gray-500">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
+                            <i class="fas fa-chart-bar"></i>
                         </button>
                     </div>
                     <div class="overflow-x-auto">
@@ -164,17 +144,22 @@ if ($_SESSION['role'] !== 'salarié') {
                     </div>
                 </div>
 
-                <!-- Mes Absences -->
+                <!-- Mes Demandes de Congés -->
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Mes Absences</h3>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-700">Mes Demandes de Congés</h3>
+                        <button onclick="openVacationModal()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm">
+                            <i class="fas fa-plus mr-1"></i> Nouvelle demande
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200" id="absences-table">
+                        <table class="min-w-full divide-y divide-gray-200" id="demandes-table">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Jours passés</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Signalé par</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Motif</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date début</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date fin</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -185,24 +170,26 @@ if ($_SESSION['role'] !== 'salarié') {
                 </div>
             </div>
 
-            <!-- Quatrième ligne - Tableau des demandes -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Mes Demandes</h3>
+            <!-- Mes Absences -->
+            <div class="bg-white rounded-lg shadow p-6 mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Mes Absences</h3>
+                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold" id="total-absences">
+                        0 absence(s)
+                    </div>
+                </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200" id="demandes-table">
+                    <table class="min-w-full divide-y divide-gray-200" id="absences-table">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date demande</th>
                                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date début</th>
                                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date fin</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nb jours</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nombre de jours</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Commentaire</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            <!-- Les données seront insérées ici dynamiquement -->
+                            <!-- Les absences seront ajoutées ici dynamiquement -->
                         </tbody>
                     </table>
                 </div>
@@ -309,20 +296,34 @@ if ($_SESSION['role'] !== 'salarié') {
                     
                     data.actions.forEach(action => {
                         const tr = document.createElement('tr');
-                        const statusClass = action.type === 'absence' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800';
-                        
                         tr.innerHTML = `
-                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">${new Date(action.date).toLocaleDateString('fr-FR')}</td>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                ${new Date(action.date).toLocaleDateString('fr-FR')}
+                            </td>
                             <td class="px-3 py-2 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                     ${action.type_action}
                                 </span>
                             </td>
-                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">${action.manager_name}</td>
-                            <td class="px-3 py-2 text-sm text-gray-900">${action.commentaire || '-'}</td>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                ${action.manager_name}
+                            </td>
+                            <td class="px-3 py-2 text-sm text-gray-900">
+                                ${action.commentaire || '-'}
+                            </td>
                         `;
                         tbody.appendChild(tr);
                     });
+
+                    // Si aucun entretien
+                    if (data.actions.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="px-3 py-4 text-sm text-gray-500 text-center">
+                                Aucun entretien planifié
+                            </td>
+                        `;
+                    }
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -392,33 +393,30 @@ if ($_SESSION['role'] !== 'salarié') {
             const detailsContent = document.getElementById('detailsContent');
             detailsContent.innerHTML = `
                 <div class="bg-gray-50 p-4 rounded-lg space-y-3">
-                    <div>
-                        <span class="font-semibold">Date de la demande:</span>
-                        <span class="ml-2">${formatDate(demande.date_demande)}</span>
+                    <div class="flex justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Date de début</p>
+                            <p class="text-base text-gray-900">${new Date(demande.date_debut).toLocaleDateString('fr-FR')}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Date de fin</p>
+                            <p class="text-base text-gray-900">${new Date(demande.date_fin).toLocaleDateString('fr-FR')}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Nombre de jours</p>
+                            <p class="text-base text-gray-900">${demande.nb_jours} jour(s)</p>
+                        </div>
                     </div>
                     <div>
-                        <span class="font-semibold">Période:</span>
-                        <span class="ml-2">Du ${formatDate(demande.date_debut)} au ${formatDate(demande.date_fin)}</span>
-                    </div>
-                    <div>
-                        <span class="font-semibold">Nombre de jours:</span>
-                        <span class="ml-2">${demande.nb_jours} jour${demande.nb_jours > 1 ? 's' : ''}</span>
-                    </div>
-                    <div>
-                        <span class="font-semibold">Statut:</span>
-                        <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(demande.statut)}">
-                            ${getStatusText(demande.statut)}
-                        </span>
-                    </div>
-                    <div>
-                        <span class="font-semibold">Commentaire:</span>
-                        <p class="mt-1 text-sm text-gray-600">${demande.commentaire || 'Aucun commentaire'}</p>
+                        <p class="text-sm font-medium text-gray-500">Commentaire</p>
+                        <p class="text-base text-gray-900">${demande.commentaire || '-'}</p>
                     </div>
                     ${demande.reponse_commentaire ? `
-                    <div>
-                        <span class="font-semibold">Réponse:</span>
-                        <p class="mt-1 text-sm text-gray-600">${demande.reponse_commentaire}</p>
-                    </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Réponse</p>
+                            <p class="text-base text-gray-900">${demande.reponse_commentaire}</p>
+                            <p class="text-xs text-gray-500 mt-1">Par ${demande.repondu_par_nom || '-'} le ${new Date(demande.date_reponse).toLocaleDateString('fr-FR')}</p>
+                        </div>
                     ` : ''}
                 </div>
             `;
@@ -465,7 +463,7 @@ if ($_SESSION['role'] !== 'salarié') {
                     
                     // Ajouter une info-bulle pour plus de détails
                     const demandesElement = document.getElementById('demandes-count').parentElement;
-                    demandesElement.title = `Total: ${data.demandes.total_demandes}\nEn attente: ${data.demandes.demandes_en_attente}\nApprouvées: ${data.demandes.demandes_approuvees}\nRejetées: ${data.demandes.demandes_rejetees}`;
+                    demandesElement.title = `Total: ${data.demandes.total_demandes}\nEn attente: ${data.demandes.demandes_en_attente}\nApprouvées: ${data.demandes.demandes_approuvees}\nRejetées: ${data.demandes.demandes_rejetées}`;
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -476,16 +474,17 @@ if ($_SESSION['role'] !== 'salarié') {
             try {
                 const response = await fetch('/JS/SPIB/api/employee/absences_stats.php');
                 const data = await response.json();
+                console.log('Données absences:', data);  // Ajout du console.log
                 
                 if (data.success) {
-                    document.getElementById('absences-count').textContent = data.stats.absences;
+                    // Mettre à jour les compteurs d'absences
+                    document.getElementById('absences-count').textContent = data.stats.absences.nombre;
+                    document.getElementById('absences-jours').textContent = `(${data.stats.absences.total_jours} jours)`;
+                    
+                    // Mettre à jour les compteurs d'entretiens
                     document.getElementById('entretiens-pm').textContent = data.stats.entretiens.PM;
                     document.getElementById('entretiens-em').textContent = data.stats.entretiens.EM;
                     document.getElementById('entretiens-dm').textContent = data.stats.entretiens.DM;
-                    
-                    // Ajouter une info-bulle pour plus de détails
-                    const absencesElement = document.getElementById('absences-count').parentElement;
-                    absencesElement.title = `Absences cette année: ${data.stats.absences}\nEntretiens PM: ${data.stats.entretiens.PM}\nEntretiens EM: ${data.stats.entretiens.EM}\nEntretiens DM: ${data.stats.entretiens.DM}`;
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -494,69 +493,89 @@ if ($_SESSION['role'] !== 'salarié') {
 
         async function loadConges() {
             try {
-                await Promise.all([
-                    loadDemandesCount(),
-                    loadAbsencesStats(),
-                    loadEntretiens(),
-                    loadMesAbsences(),
-                    (async () => {
-                        // Charger le solde de congés
-                        const soldeResponse = await fetch('/JS/SPIB/api/employee/solde_conges.php');
-                        const soldeData = await soldeResponse.json();
+                const response = await fetch('/JS/SPIB/api/employee/conges.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.querySelector('#demandes-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    data.conges.forEach(conge => {
+                        const tr = document.createElement('tr');
+                        const statusClass = getStatusClass(conge.statut);
                         
-                        if (soldeData.success) {
-                            document.getElementById('conges-count').textContent = soldeData.conges.conges_restant;
-                            document.getElementById('conges-en-attente').textContent = 
-                                `(${soldeData.conges.jours_en_attente} en attente)`;
-                            
-                            const congesElement = document.getElementById('conges-count').parentElement;
-                            congesElement.title = `Total: ${soldeData.conges.conges_total} jours\nPris: ${soldeData.conges.conges_pris} jours\nEn attente: ${soldeData.conges.jours_en_attente} jours\nRestant: ${soldeData.conges.conges_restant} jours`;
-                        }
+                        tr.innerHTML = `
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                ${new Date(conge.date_debut).toLocaleDateString('fr-FR')}
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                ${new Date(conge.date_fin).toLocaleDateString('fr-FR')}
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                    ${formatStatus(conge.statut)}
+                                </span>
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                <button onclick="showDetails(${JSON.stringify(conge).replace(/"/g, '&quot;')})" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
 
-                        // Charger la liste des demandes
-                        const response = await fetch('/JS/SPIB/api/conges/liste.php');
-                        const data = await response.json();
+                    // Si aucune demande
+                    if (data.conges.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="px-3 py-4 text-sm text-gray-500 text-center">
+                                Aucune demande de congés
+                            </td>
+                        `;
+                    }
 
-                        if (data.success) {
-                            const tbody = document.querySelector('#demandes-table tbody');
-                            tbody.innerHTML = '';
-
-                            data.demandes.forEach(demande => {
-                                const tr = document.createElement('tr');
-                                tr.innerHTML = `
-                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">${formatDate(demande.date_demande)}</td>
-                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">${formatDate(demande.date_debut)}</td>
-                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">${formatDate(demande.date_fin)}</td>
-                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">${demande.nb_jours}</td>
-                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Congés</td>
-                                    <td class="px-3 py-2 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(demande.statut)}">
-                                            ${getStatusText(demande.statut)}
-                                        </span>
-                                    </td>
-                                    <td class="px-3 py-2 whitespace-nowrap text-sm">
-                                        <div class="flex space-x-2">
-                                            <button onclick='showDetails(${JSON.stringify(demande)})' class="text-blue-600 hover:text-blue-800">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            ${demande.statut === 'en_attente' ? `
-                                                <button onclick='deleteRequest(${demande.id})' class="text-red-600 hover:text-red-800">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            ` : ''}
-                                        </div>
-                                    </td>
-                                `;
-                                tbody.appendChild(tr);
-                            });
-
-                            // Mettre à jour le compteur de demandes
-                            document.getElementById('demandes-count').textContent = data.demandes.length;
-                        }
-                    })()
-                ]);
+                    // Mettre à jour les compteurs
+                    if (data.solde) {
+                        document.getElementById('conges-count').textContent = data.solde.conges_restant;
+                        document.getElementById('conges-en-attente').textContent = 
+                            `(${data.conges.filter(c => c.statut === 'en_attente').length} en attente)`;
+                        document.getElementById('demandes-approuvees').textContent = 
+                            data.conges.filter(c => c.statut === 'approuve').length;
+                        document.getElementById('demandes-rejetees').textContent = 
+                            data.conges.filter(c => c.statut === 'refuse').length;
+                    }
+                }
             } catch (error) {
                 console.error('Erreur:', error);
+            }
+        }
+
+        // Fonction pour obtenir la classe CSS selon le statut
+        function getStatusClass(status) {
+            switch (status) {
+                case 'en_attente':
+                    return 'bg-yellow-100 text-yellow-800';
+                case 'approuve':
+                    return 'bg-green-100 text-green-800';
+                case 'refuse':
+                    return 'bg-red-100 text-red-800';
+                default:
+                    return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // Fonction pour formater le statut
+        function formatStatus(status) {
+            switch (status) {
+                case 'en_attente':
+                    return 'En attente';
+                case 'approuve':
+                    return 'Approuvé';
+                case 'refuse':
+                    return 'Refusé';
+                default:
+                    return status;
             }
         }
 
@@ -595,55 +614,59 @@ if ($_SESSION['role'] !== 'salarié') {
         });
 
         // Fonction pour charger les absences
-        async function loadMesAbsences() {
+        async function loadAbsences() {
             try {
-                const response = await fetch('/JS/SPIB/api/employee/mes_absences.php');
+                const response = await fetch('/JS/SPIB/api/employee/absences.php');
                 const data = await response.json();
                 
                 if (data.success) {
                     const tbody = document.querySelector('#absences-table tbody');
                     tbody.innerHTML = '';
                     
+                    // Mettre à jour le compteur total d'absences
+                    document.getElementById('total-absences').textContent = `${data.total_absences} absence(s)`;
+                    
                     data.absences.forEach(absence => {
                         const tr = document.createElement('tr');
-                        const roleClass = getRoleClass(absence.role_signaleur);
-                        
                         tr.innerHTML = `
                             <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
-                                ${formatDate(absence.date_absence)}
+                                ${new Date(absence.date_debut).toLocaleDateString('fr-FR')}
                             </td>
                             <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
-                                ${Math.abs(absence.jours_passes)} jours
+                                ${absence.date_fin ? new Date(absence.date_fin).toLocaleDateString('fr-FR') : 'En cours'}
                             </td>
-                            <td class="px-3 py-2 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${roleClass}">
-                                    ${absence.signale_par}
-                                </span>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                ${absence.nombre_jours} jour(s)
                             </td>
                             <td class="px-3 py-2 text-sm text-gray-900">
-                                ${absence.motif || '-'}
+                                ${absence.commentaire || '-'}
                             </td>
                         `;
                         tbody.appendChild(tr);
                     });
+
+                    // Si aucune absence
+                    if (data.absences.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="px-3 py-4 text-sm text-gray-500 text-center">
+                                Aucune absence enregistrée
+                            </td>
+                        `;
+                    }
                 }
             } catch (error) {
                 console.error('Erreur:', error);
             }
         }
 
-        function getRoleClass(role) {
-            switch (role) {
-                case 'PM':
-                    return 'bg-purple-100 text-purple-800';
-                case 'EM':
-                    return 'bg-blue-100 text-blue-800';
-                case 'DM':
-                    return 'bg-green-100 text-green-800';
-                default:
-                    return 'bg-gray-100 text-gray-800';
-            }
-        }
+        // Charger les absences au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEntretiens();
+            loadConges();
+            loadAbsences();  // Ajout du chargement des absences
+            loadAbsencesStats(); // Ajout du chargement des statistiques d'absences
+        });
 
         // Fonctions pour la modal des statistiques d'entretiens
         function openEntretiensStats() {

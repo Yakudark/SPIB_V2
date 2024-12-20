@@ -16,10 +16,12 @@ try {
     
     // Récupérer les absences
     $queryAbsences = "
-        SELECT COUNT(*) as nb_absences
+        SELECT 
+            COUNT(*) as nb_absences,
+            SUM(DATEDIFF(IFNULL(date_fin, date_debut), date_debut) + 1) as total_jours
         FROM absences
-        WHERE utilisateur_id = :user_id
-        AND YEAR(date_absence) = YEAR(CURRENT_DATE)
+        WHERE agent_id = :user_id
+        AND YEAR(date_debut) = YEAR(CURRENT_DATE)
     ";
     
     $stmt = $pdo->prepare($queryAbsences);
@@ -29,39 +31,57 @@ try {
     // Récupérer les entretiens par type de manager
     $queryEntretiens = "
         SELECT 
-            manager_role as type_manager,
+            CASE 
+                WHEN at.nom LIKE 'PM%' THEN 'PM'
+                WHEN at.nom LIKE 'EM%' THEN 'EM'
+                WHEN at.nom LIKE 'DM%' THEN 'DM'
+                ELSE 'Autre'
+            END as type_manager,
             COUNT(*) as nb_entretiens
-        FROM entretiens
-        WHERE utilisateur_id = :user_id
-        AND YEAR(date_entretien) = YEAR(CURRENT_DATE)
-        AND statut = 'réalisé'
-        GROUP BY manager_role
+        FROM actions a
+        JOIN action_types at ON a.type_action_id = at.id
+        WHERE a.agent_id = :user_id
+        AND a.statut = 'effectue'
+        AND YEAR(a.date_action) = YEAR(CURRENT_DATE)
+        GROUP BY 
+            CASE 
+                WHEN at.nom LIKE 'PM%' THEN 'PM'
+                WHEN at.nom LIKE 'EM%' THEN 'EM'
+                WHEN at.nom LIKE 'DM%' THEN 'DM'
+                ELSE 'Autre'
+            END
     ";
     
     $stmt = $pdo->prepare($queryEntretiens);
     $stmt->execute(['user_id' => $_SESSION['user_id']]);
-    $entretiens = [];
+    $entretiens = [
+        'PM' => 0,
+        'EM' => 0,
+        'DM' => 0
+    ];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $entretiens[$row['type_manager']] = $row['nb_entretiens'];
+        if (isset($entretiens[$row['type_manager']])) {
+            $entretiens[$row['type_manager']] = (int)$row['nb_entretiens'];
+        }
     }
 
     echo json_encode([
         'success' => true,
         'stats' => [
-            'absences' => (int)$absences['nb_absences'],
-            'entretiens' => [
-                'PM' => isset($entretiens['PM']) ? (int)$entretiens['PM'] : 0,
-                'EM' => isset($entretiens['EM']) ? (int)$entretiens['EM'] : 0,
-                'DM' => isset($entretiens['DM']) ? (int)$entretiens['DM'] : 0
-            ]
+            'absences' => [
+                'nombre' => (int)$absences['nb_absences'],
+                'total_jours' => (int)($absences['total_jours'] ?? 0)
+            ],
+            'entretiens' => $entretiens
         ]
     ]);
     
-} catch (Exception $e) {
-    error_log("Erreur employee/absences_stats.php: " . $e->getMessage());
+} catch (PDOException $e) {
+    error_log("Erreur dans absences_stats.php: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => 'Erreur lors de la récupération des statistiques'
+        'error' => 'Erreur lors de la récupération des statistiques',
+        'debug' => $e->getMessage()
     ]);
 }

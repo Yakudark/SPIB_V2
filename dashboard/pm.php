@@ -49,8 +49,35 @@ $pdo = $database->getConnection();
                 </div>
                 <p class="text-sm text-gray-600">Nombre total d'agents sous votre responsabilité</p>
             </div>
+            
         </div>
-
+<!-- Section des absences -->
+<div class="bg-white rounded-lg shadow p-6 mt-8 mb-8">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-semibold text-gray-700">Suivi des absences</h3>
+        <button onclick="openAbsenceModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+            Ajouter une absence
+        </button>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date début</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date fin</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre de jours</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commentaire</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="absencesTableBody" class="bg-white divide-y divide-gray-200">
+                <!-- Les absences seront ajoutées ici dynamiquement -->
+            </tbody>
+        </table>
+    </div>
+</div>
         <!-- Tableau des actions -->
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex justify-between items-center mb-6">
@@ -85,14 +112,14 @@ $pdo = $database->getConnection();
         </div>
     
 
-    <!-- Modal pour les détails de vacances -->
+        <!-- Modal pour les détails de vacances -->
      <!-- Tableau des demandes de vacances -->
-<div class="bg-white rounded-lg shadow p-6 mt-8">
-    <div class="flex justify-between items-center mb-6">
-        <div class="flex items-center space-x-4">
-            <h3 class="text-lg font-semibold text-gray-700">Listes des demandes de congés</h3>
-            
-            <!-- Sélecteur de salarié -->
+        <div class="bg-white rounded-lg shadow p-6 mt-8">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center space-x-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Listes des demandes de congés</h3>
+             
+             <!-- Sélecteur de salarié -->
             <select id="selectedAgentVacation" class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                 <option value="">Tous les salariés</option>
             </select>
@@ -124,7 +151,9 @@ $pdo = $database->getConnection();
             </tbody>
         </table>
     </div>
+    
 </div>
+
 </div>
     <!-- Modal pour nouvelle action -->
     <div id="actionModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
@@ -163,9 +192,79 @@ $pdo = $database->getConnection();
                 </form>
             </div>
         </div>
+        
     </div>
-
+<!-- Modal pour ajouter une absence -->
+<div id="absenceModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Ajouter une absence</h2>
+            <form id="absenceForm" onsubmit="submitAbsence(event)">
+                <div class="mb-4">
+                    <label for="absenceAgent" class="block text-sm font-medium text-gray-700">Agent</label>
+                    <select id="absenceAgent" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
+                        <!-- Les agents seront ajoutés ici dynamiquement -->
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="dateDebut" class="block text-sm font-medium text-gray-700">Date de début</label>
+                    <input type="date" id="dateDebut" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="dateFin" class="block text-sm font-medium text-gray-700">Date de fin</label>
+                    <input type="date" id="dateFin" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="commentaire" class="block text-sm font-medium text-gray-700">Commentaire</label>
+                    <textarea id="commentaire" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeAbsenceModal()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded-lg text-sm">
+                        Annuler
+                    </button>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
     <script>
+        // Déclarer les fonctions au début du script
+        function openAbsenceModal() {
+            document.getElementById('absenceModal').classList.remove('hidden');
+            loadAgentsForAbsence();
+        }
+
+        function closeAbsenceModal() {
+            document.getElementById('absenceModal').classList.add('hidden');
+            document.getElementById('absenceForm').reset();
+        }
+
+        async function loadAgentsForAbsence() {
+            try {
+                const response = await fetch('/JS/SPIB/api/pm/agents.php');
+                const agents = await response.json();
+                
+                const select = document.getElementById('absenceAgent');
+                select.innerHTML = '<option value="">Sélectionner un agent</option>';
+                
+                agents.forEach(agent => {
+                    const option = document.createElement('option');
+                    option.value = agent.id;
+                    option.textContent = `${agent.prenom} ${agent.nom}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
         function openActionModal() {
             document.getElementById('actionModal').classList.remove('hidden');
             // Charger les agents et les types d'actions
@@ -462,6 +561,144 @@ $pdo = $database->getConnection();
             loadActions();
             loadConges();
         });
+        // Fonctions pour les absences
+async function loadAbsences() {
+    try {
+        const response = await fetch('/JS/SPIB/api/pm/absences.php');
+        const data = await response.json();
+        
+        if (data.success) {
+            const tbody = document.getElementById('absencesTableBody');
+            tbody.innerHTML = '';
+            
+            data.absences.forEach(absence => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${absence.agent_prenom} ${absence.agent_nom}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${new Date(absence.date_debut).toLocaleDateString()}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${absence.date_fin === '2999-12-31' ? 
+                            '<span class="text-red-600">Non définie</span>' : 
+                            new Date(absence.date_fin).toLocaleDateString()}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${absence.nombre_jours}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${absence.commentaire || ''}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <button onclick="deleteAbsence(${absence.id})" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function submitAbsence(event) {
+    event.preventDefault();
+    
+    const agent_id = document.getElementById('absenceAgent').value;
+    const date_debut = document.getElementById('dateDebut').value;
+    const date_fin = document.getElementById('dateFin').value;
+    const commentaire = document.getElementById('commentaire').value;
+
+    // Si pas de date de fin, demander confirmation
+    if (!date_fin) {
+        if (!confirm("Aucune date de fin n'a été spécifiée. Voulez-vous en ajouter une ?")) {
+            // Si non, continuer avec la date par défaut (31/12/2999)
+            try {
+                const response = await fetch('/JS/SPIB/api/pm/absences.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        agent_id,
+                        date_debut,
+                        commentaire
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    closeAbsenceModal();
+                    loadAbsences();
+                } else {
+                    alert(data.error || 'Erreur lors de l\'ajout de l\'absence');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+            return;
+        }
+        return;
+    }
+
+    // Si une date de fin est spécifiée
+    try {
+        const response = await fetch('/JS/SPIB/api/pm/absences.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                agent_id,
+                date_debut,
+                date_fin,
+                commentaire
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            closeAbsenceModal();
+            loadAbsences();
+        } else {
+            alert(data.error || 'Erreur lors de l\'ajout de l\'absence');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function deleteAbsence(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette absence ?')) {
+        try {
+            const response = await fetch('/JS/SPIB/api/pm/absences.php', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                loadAbsences();
+            } else {
+                alert(data.error || 'Erreur lors de la suppression');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+}
+
+// Charger les absences au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    loadAbsences();
+});
     </script>
 </body>
 </html>

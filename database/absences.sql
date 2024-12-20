@@ -30,15 +30,16 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `absences`;
 CREATE TABLE IF NOT EXISTS `absences` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `utilisateur_id` int NOT NULL,
-  `signale_par_id` int NOT NULL,
-  `date_absence` date NOT NULL,
-  `motif` text COLLATE utf8mb4_unicode_ci,
+  `agent_id` int NOT NULL,
+  `date_debut` date NOT NULL,
+  `date_fin` date DEFAULT NULL,
+  `commentaire` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `utilisateur_id` (`utilisateur_id`),
-  KEY `signale_par_id` (`signale_par_id`)
+  KEY `agent_id` (`agent_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
