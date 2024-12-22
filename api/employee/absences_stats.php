@@ -16,9 +16,7 @@ try {
     
     // Récupérer les absences
     $queryAbsences = "
-        SELECT 
-            COUNT(*) as nb_absences,
-            SUM(DATEDIFF(IFNULL(date_fin, date_debut), date_debut) + 1) as total_jours
+        SELECT COUNT(*) as nb_absences
         FROM absences
         WHERE agent_id = :user_id
         AND YEAR(date_debut) = YEAR(CURRENT_DATE)
@@ -28,7 +26,7 @@ try {
     $stmt->execute(['user_id' => $_SESSION['user_id']]);
     $absences = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Récupérer les entretiens par type de manager
+    // Récupérer les entretiens
     $queryEntretiens = "
         SELECT 
             CASE 
@@ -41,7 +39,6 @@ try {
         FROM actions a
         JOIN action_types at ON a.type_action_id = at.id
         WHERE a.agent_id = :user_id
-        AND a.statut = 'effectue'
         AND YEAR(a.date_action) = YEAR(CURRENT_DATE)
         GROUP BY 
             CASE 
@@ -59,18 +56,18 @@ try {
         'EM' => 0,
         'DM' => 0
     ];
+    
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         if (isset($entretiens[$row['type_manager']])) {
             $entretiens[$row['type_manager']] = (int)$row['nb_entretiens'];
         }
     }
-
+    
     echo json_encode([
         'success' => true,
         'stats' => [
             'absences' => [
-                'nombre' => (int)$absences['nb_absences'],
-                'total_jours' => (int)($absences['total_jours'] ?? 0)
+                'nombre' => (int)$absences['nb_absences']
             ],
             'entretiens' => $entretiens
         ]

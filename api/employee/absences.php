@@ -19,8 +19,8 @@ try {
             a.id,
             a.date_debut,
             a.date_fin,
-            a.commentaire,
-            DATEDIFF(IFNULL(a.date_fin, '2999-12-31'), a.date_debut) + 1 as nombre_jours,
+            a.commentaire as motif,
+            DATEDIFF(IFNULL(a.date_fin, CURRENT_DATE), a.date_debut) + 1 as jours_passes,
             COUNT(*) OVER() as total_absences
         FROM absences a
         WHERE a.agent_id = :agent_id
@@ -33,6 +33,17 @@ try {
     
     // Calculer le nombre total d'absences
     $total_absences = $absences[0]['total_absences'] ?? 0;
+    
+    // Formater les dates et les données
+    $absences = array_map(function($absence) {
+        return [
+            'id' => $absence['id'],
+            'date_debut' => date('d/m/Y', strtotime($absence['date_debut'])),
+            'jours_passes' => $absence['jours_passes'],
+            'signale_par' => 'Système', // Valeur par défaut car pas de colonne signale_par
+            'motif' => $absence['motif'] ?? '-'
+        ];
+    }, $absences);
     
     echo json_encode([
         'success' => true,
