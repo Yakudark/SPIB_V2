@@ -25,9 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 a.date_debut,
                 a.date_fin,
                 a.commentaire,
-                DATEDIFF(IFNULL(a.date_fin, '2999-12-31'), a.date_debut) + 1 as nombre_jours
+                DATEDIFF(IFNULL(a.date_fin, '2999-12-31'), a.date_debut) + 1 as nombre_jours,
+                a.signale_par_id,
+                CONCAT(u2.prenom, ' ', u2.nom) as signale_par_nom
             FROM absences a
             JOIN utilisateurs u ON a.agent_id = u.id
+            LEFT JOIN utilisateurs u2 ON a.signale_par_id = u2.id
             WHERE u.pm_id = :pm_id
             ORDER BY a.date_debut DESC
         ";
@@ -56,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $date_fin = !empty($data['date_fin']) ? $data['date_fin'] : '2999-12-31';
         
         $query = "
-            INSERT INTO absences (agent_id, date_debut, date_fin, commentaire)
-            VALUES (:agent_id, :date_debut, :date_fin, :commentaire)
+            INSERT INTO absences (agent_id, date_debut, date_fin, commentaire, signale_par_id)
+            VALUES (:agent_id, :date_debut, :date_fin, :commentaire, :signale_par_id)
         ";
         
         $stmt = $pdo->prepare($query);
@@ -65,7 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'agent_id' => $data['agent_id'],
             'date_debut' => $data['date_debut'],
             'date_fin' => $date_fin,
-            'commentaire' => $data['commentaire'] ?? null
+            'commentaire' => $data['commentaire'] ?? null,
+            'signale_par_id' => $_SESSION['user_id']
         ]);
         
         echo json_encode(['success' => true, 'message' => 'Absence ajoutée avec succès']);

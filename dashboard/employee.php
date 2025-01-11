@@ -100,9 +100,7 @@ if ($_SESSION['role'] !== 'salarié') {
 
         <!-- Boutons du bas -->
         <div class="space-y-2">
-            <button class="w-full bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
-                Aide
-            </button>
+            
             <a href="/JS/SPIB/api/auth/logout.php" class="block w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 border border-red-600 rounded shadow text-center">
                 Déconnexion
             </a>
@@ -142,7 +140,8 @@ if ($_SESSION['role'] !== 'salarié') {
                     <table class="min-w-full">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date début</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date fin</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jours passés</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Signalé par</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Motif</th>
@@ -152,6 +151,16 @@ if ($_SESSION['role'] !== 'salarié') {
                             <!-- Les données seront insérées ici dynamiquement -->
                         </tbody>
                     </table>
+                    <div class="flex justify-between items-center mt-4">
+                        <button id="prev-page" class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                            Précédent
+                        </button>
+                        <div id="pagination-info" class="text-sm text-gray-600"></div>
+                        <div id="pagination-numbers" class="flex space-x-2"></div>
+                        <button id="next-page" class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                            Suivant
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -314,27 +323,149 @@ if ($_SESSION['role'] !== 'salarié') {
         }
 
         // Fonction pour charger les absences
-        async function loadAbsences() {
+        async function loadAbsences(page = 1) {
             try {
-                const response = await fetch('/JS/SPIB/api/employee/absences.php');
+                const response = await fetch(`/JS/SPIB/api/employee/absences.php?page=${page}`);
                 const data = await response.json();
                 
                 if (data.success) {
-                    const absencesTable = document.getElementById('absences-table');
-                    absencesTable.innerHTML = data.absences.map(absence => `
+                    // Mettre à jour le tableau
+                    const tbody = document.getElementById('absences-table');
+                    tbody.innerHTML = '';
+                    
+                    if (data.absences.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    Aucune absence enregistrée
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        data.absences.forEach(absence => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${absence.date_debut}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${absence.date_fin}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${absence.jours_passes} jours</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${absence.signale_par}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${absence.motif}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+
+                    // Mettre à jour la pagination
+                    const paginationNumbers = document.getElementById('pagination-numbers');
+                    const prevButton = document.getElementById('prev-page');
+                    const nextButton = document.getElementById('next-page');
+                    const paginationInfo = document.getElementById('pagination-info');
+
+                    // Mise à jour des boutons précédent/suivant
+                    prevButton.disabled = data.pagination.current_page === 1;
+                    nextButton.disabled = data.pagination.current_page === data.pagination.total_pages;
+                    
+                    prevButton.onclick = () => loadAbsences(data.pagination.current_page - 1);
+                    nextButton.onclick = () => loadAbsences(data.pagination.current_page + 1);
+
+                    // Mise à jour des numéros de page
+                    paginationNumbers.innerHTML = '';
+                    for (let i = 1; i <= data.pagination.total_pages; i++) {
+                        const button = document.createElement('button');
+                        button.className = `px-3 py-1 rounded ${i === data.pagination.current_page 
+                            ? 'bg-blue-500 text-white' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`;
+                        button.textContent = i;
+                        button.onclick = () => loadAbsences(i);
+                        paginationNumbers.appendChild(button);
+                    }
+
+                    // Mise à jour de l'information de pagination
+                    paginationInfo.textContent = `Page ${data.pagination.current_page} sur ${data.pagination.total_pages} (${data.pagination.total_items} absences)`;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        // Charger la première page au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAbsences(1);
+        });
+
+        // Fonction pour charger les entretiens
+        async function loadEntretiens() {
+            try {
+                const response = await fetch('/JS/SPIB/api/employee/entretiens.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const entretiensTable = document.getElementById('entretiens-table');
+                    entretiensTable.innerHTML = data.entretiens.map(entretien => `
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${absence.date_debut}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${absence.jours_passes}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${absence.signale_par}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${absence.motif}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.date}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.type}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.avec}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.commentaire}</td>
                         </tr>
                     `).join('') || `
                         <tr>
                             <td colspan="4" class="px-6 py-4 text-sm text-gray-500 text-center">
-                                Aucune absence enregistrée
+                                Aucun entretien planifié
                             </td>
                         </tr>
                     `;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        // Fonction pour charger les demandes de congés
+        async function loadVacationRequests() {
+            try {
+                const response = await fetch('/JS/SPIB/api/employee/conges.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Mettre à jour le compteur de congés
+                    document.getElementById('conges-count').textContent = data.conges.jours_disponibles;
+                    document.getElementById('conges-en-attente').textContent = `(${data.conges.demandes_en_attente} en attente)`;
+                    
+                    // Mettre à jour les compteurs de demandes
+                    document.getElementById('demandes-approuvees').textContent = data.demandes.demandes_approuvees;
+                    document.getElementById('demandes-rejetees').textContent = data.demandes.demandes_rejetees;
+                    
+                    // Mettre à jour le tableau des demandes
+                    const demandesTable = document.getElementById('demandes-table');
+                    demandesTable.innerHTML = data.demandes.liste.map(demande => `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.date_demande}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.date_debut}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.date_fin}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.nb_jours}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">Congés</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    ${demande.statut === 'en_attente' ? 'bg-yellow-100 text-yellow-800' : 
+                                    demande.statut === 'approuve' ? 'bg-green-100 text-green-800' : 
+                                    'bg-red-100 text-red-800'}">
+                                    ${demande.statut === 'en_attente' ? 'En attente' : 
+                                      demande.statut === 'approuve' ? 'Approuvé' : 'Refusé'}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <button onclick="showDetails(${demande.id})" class="text-blue-600 hover:text-blue-900">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                                ${demande.statut === 'en_attente' ? `
+                                    <button onclick="deleteRequest(${demande.id})" class="text-red-600 hover:text-red-900 ml-2">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `).join('');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
