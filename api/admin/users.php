@@ -16,7 +16,7 @@ try {
 
     // Récupérer les paramètres de pagination
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 8;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
     $offset = ($page - 1) * $limit;
 
     // Compter le nombre total d'utilisateurs

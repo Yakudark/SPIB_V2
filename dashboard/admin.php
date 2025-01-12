@@ -49,92 +49,107 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             </div>
 
             <!-- Modal pour ajouter/modifier un utilisateur -->
-            <div id="userModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
-                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium" id="modalTitle">Ajouter un utilisateur</h3>
-                        <button onclick="closeUserModal()" class="text-gray-600 hover:text-gray-800">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <form id="userForm" onsubmit="handleUserSubmit(event)">
-                        <input type="hidden" id="userId" name="id">
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Nom</label>
-                                <input type="text" id="nom" name="nom" required
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Prénom</label>
-                                <input type="text" id="prenom" name="prenom" required
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Matricule</label>
-                                <input type="text" id="matricule" name="matricule" required
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Rôle</label>
-                                <select id="role" name="role" required onchange="handleRoleChange(this.value)"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="salarié">Salarié</option>
-                                    <option value="RH">RH</option>
-                                    <option value="EM">EM</option>
-                                    <option value="PM">PM</option>
-                                    <option value="DM">DM</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Pool</label>
-                                <select id="pool" name="pool" required onchange="handleServiceChange(this.value)"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="">Sélectionner un service</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">PM</label>
-                                <select id="pm_id" name="pm_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="">Sélectionner un PM</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">EM</label>
-                                <select id="em_id" name="em_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="">Sélectionner un EM</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">DM</label>
-                                <select id="dm_id" name="dm_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="">Sélectionner un DM</option>
-                                </select>
-                            </div>
-                        </div>
+            <div id="userModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="flex min-h-screen items-center justify-center px-4">
+                    <!-- Overlay -->
+                    <div class="fixed inset-0 bg-gray-500 bg-opacity-75"></div>
 
-                        <div class="mt-6 flex justify-end space-x-3">
+                    <!-- Modal content -->
+                    <div class="relative w-full max-w-4xl rounded-lg bg-white shadow-xl">
+                        <div class="flex items-center justify-between rounded-t-lg bg-blue-600 px-6 py-4">
+                            <h3 class="text-lg font-medium text-white" id="modalTitle">Ajouter un utilisateur</h3>
                             <button type="button" onclick="closeUserModal()"
-                                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
-                                Annuler
-                            </button>
-                            <button type="submit"
-                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                                Enregistrer
+                                class="text-gray-200 hover:text-white focus:outline-none">
+                                <span class="text-2xl">&times;</span>
                             </button>
                         </div>
-                    </form>
+                        <form id="userForm" onsubmit="handleUserSubmit(event)">
+                            <input type="hidden" id="userId" name="userId">
+                            
+                            <div class="bg-white px-6 pt-6 pb-6">
+                                <div class="grid grid-cols-2 gap-6">
+                                    <!-- Première colonne -->
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Nom</label>
+                                            <input type="text" id="nom" name="nom" required
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Prénom</label>
+                                            <input type="text" id="prenom" name="prenom" required
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Matricule</label>
+                                            <input type="text" id="matricule" name="matricule" required
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Rôle</label>
+                                            <select id="role" name="role" required onchange="handleRoleChange(this.value)"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                <option value="">Sélectionner un rôle</option>
+                                                <option value="salarié">Salarié</option>
+                                                <option value="PM">PM</option>
+                                                <option value="EM">EM</option>
+                                                <option value="DM">DM</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Deuxième colonne -->
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Service</label>
+                                            <select id="pool" name="pool" onchange="handleServiceChange(this.value)"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                <option value="">Sélectionner un service</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">PM</label>
+                                            <select id="pm_id" name="pm_id"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                <option value="">--</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">EM</label>
+                                            <select id="em_id" name="em_id"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                <option value="">--</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">DM</label>
+                                            <select id="dm_id" name="dm_id"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                <option value="">--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end space-x-3">
+                                <button type="button" onclick="closeUserModal()"
+                                    class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    Annuler
+                                </button>
+                                <button type="submit"
+                                    class="rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    Enregistrer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -236,18 +251,42 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             }
         }
 
-        // Mettre à jour les selects des managers
+        // Mettre à jour les selects des managers en fonction du rôle
         function updateManagerSelects() {
-            const selects = ['pm_id', 'em_id', 'dm_id'];
-            selects.forEach(selectId => {
-                const select = document.getElementById(selectId);
-                select.innerHTML = '<option value="">Sélectionner un manager</option>';
-                managers.forEach(manager => {
-                    const option = document.createElement('option');
-                    option.value = manager.id;
-                    option.textContent = `${manager.prenom} ${manager.nom}`;
-                    select.appendChild(option);
-                });
+            const pmSelect = document.getElementById('pm_id');
+            const emSelect = document.getElementById('em_id');
+            const dmSelect = document.getElementById('dm_id');
+
+            // Réinitialiser les selects
+            pmSelect.innerHTML = '<option value="">--</option>';
+            emSelect.innerHTML = '<option value="">--</option>';
+            dmSelect.innerHTML = '<option value="">--</option>';
+
+            // Filtrer les managers par rôle
+            const pms = managers.filter(m => m.role === 'PM');
+            const ems = managers.filter(m => m.role === 'EM');
+            const dms = managers.filter(m => m.role === 'DM');
+
+            // Remplir les selects avec les managers correspondants
+            pms.forEach(pm => {
+                const option = document.createElement('option');
+                option.value = pm.id;
+                option.textContent = `${pm.prenom} ${pm.nom}`;
+                pmSelect.appendChild(option);
+            });
+
+            ems.forEach(em => {
+                const option = document.createElement('option');
+                option.value = em.id;
+                option.textContent = `${em.prenom} ${em.nom}`;
+                emSelect.appendChild(option);
+            });
+
+            dms.forEach(dm => {
+                const option = document.createElement('option');
+                option.value = dm.id;
+                option.textContent = `${dm.prenom} ${dm.nom}`;
+                dmSelect.appendChild(option);
             });
         }
 
@@ -268,15 +307,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
                     
                     if (data.success) {
                         const user = data.user;
-                        document.getElementById('userId').value = user.id;
-                        document.getElementById('nom').value = user.nom;
-                        document.getElementById('prenom').value = user.prenom;
-                        document.getElementById('matricule').value = user.matricule;
-                        document.getElementById('role').value = user.role;
-                        document.getElementById('pool').value = user.pool || '';
-                        document.getElementById('pm_id').value = user.pm_id || '';
-                        document.getElementById('em_id').value = user.em_id || '';
-                        document.getElementById('dm_id').value = user.dm_id || '';
+                        fillUserModal(user);
                     } else {
                         showNotification('Erreur lors de la récupération des données de l\'utilisateur', 'error');
                         return;
@@ -289,6 +320,35 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             }
             
             modal.classList.remove('hidden');
+        }
+
+        // Fonction pour remplir le modal avec les données de l'utilisateur
+        async function fillUserModal(userData) {
+            document.getElementById('userId').value = userData.id;
+            document.getElementById('nom').value = userData.nom;
+            document.getElementById('prenom').value = userData.prenom;
+            document.getElementById('matricule').value = userData.matricule;
+            document.getElementById('role').value = userData.role;
+            document.getElementById('pool').value = userData.pool || '';
+
+            // Mettre à jour les selects des managers
+            updateManagerSelects();
+
+            // Sélectionner les managers actuels
+            if (userData.pm_id) {
+                document.getElementById('pm_id').value = userData.pm_id;
+            }
+            if (userData.em_id) {
+                document.getElementById('em_id').value = userData.em_id;
+            }
+            if (userData.dm_id) {
+                document.getElementById('dm_id').value = userData.dm_id;
+            }
+
+            // Si c'est un salarié, on met à jour les managers en fonction du service
+            if (userData.role === 'salarié' && userData.pool) {
+                handleServiceChange(userData.pool);
+            }
         }
 
         // Fonction pour fermer le modal
@@ -475,76 +535,72 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
 
         // Fonction pour gérer le changement de service
         async function handleServiceChange(service) {
-            const roleSelect = document.getElementById('role');
-            const selectedRole = roleSelect.value;
+            if (!service) return;
 
-            // Si c'est un salarié ou un EM
-            if (selectedRole === 'salarié' || selectedRole === 'EM') {
-                try {
-                    const response = await fetch(`/JS/SPIB/api/admin/service_managers.php?service=${encodeURIComponent(service)}`);
-                    const data = await response.json();
-                    
-                    if (data.success && data.managers) {
-                        // Mettre à jour les selects des managers
-                        const pmSelect = document.getElementById('pm_id');
-                        const emSelect = document.getElementById('em_id');
-                        const dmSelect = document.getElementById('dm_id');
+            try {
+                const response = await fetch(`/JS/SPIB/api/admin/service_managers.php?service=${encodeURIComponent(service)}`);
+                const data = await response.json();
+                
+                if (data.success && data.managers) {
+                    // Mettre à jour les selects des managers
+                    const pmSelect = document.getElementById('pm_id');
+                    const emSelect = document.getElementById('em_id');
+                    const dmSelect = document.getElementById('dm_id');
 
-                        // Réinitialiser les selects
-                        pmSelect.innerHTML = '<option value="">Sélectionner un PM</option>';
-                        emSelect.innerHTML = '<option value="">Sélectionner un EM</option>';
-                        dmSelect.innerHTML = '<option value="">Sélectionner un DM</option>';
+                    // Réinitialiser les selects
+                    pmSelect.innerHTML = '<option value="">--</option>';
+                    emSelect.innerHTML = '<option value="">--</option>';
+                    dmSelect.innerHTML = '<option value="">--</option>';
 
-                        if (selectedRole === 'salarié') {
-                            // Pour un salarié, on remplit tous les managers
-                            if (data.managers.pm_id) {
-                                const pmOption = document.createElement('option');
-                                pmOption.value = data.managers.pm_id;
-                                pmOption.textContent = data.managers.pm_name;
-                                pmSelect.appendChild(pmOption);
-                                pmSelect.value = data.managers.pm_id;
-                            }
-
-                            if (data.managers.em_id) {
-                                const emOption = document.createElement('option');
-                                emOption.value = data.managers.em_id;
-                                emOption.textContent = data.managers.em_name;
-                                emSelect.appendChild(emOption);
-                                emSelect.value = data.managers.em_id;
-                            }
-
-                            if (data.managers.dm_id) {
-                                const dmOption = document.createElement('option');
-                                dmOption.value = data.managers.dm_id;
-                                dmOption.textContent = data.managers.dm_name;
-                                dmSelect.appendChild(dmOption);
-                                dmSelect.value = data.managers.dm_id;
-                            }
-                        } else if (selectedRole === 'EM') {
-                            // Pour un EM, on remplit uniquement le DM
-                            if (data.managers.dm_id) {
-                                const dmOption = document.createElement('option');
-                                dmOption.value = data.managers.dm_id;
-                                dmOption.textContent = data.managers.dm_name;
-                                dmSelect.appendChild(dmOption);
-                                dmSelect.value = data.managers.dm_id;
-                            }
-                        }
+                    // Remplir les managers
+                    if (data.managers.pm_id) {
+                        const pmOption = document.createElement('option');
+                        pmOption.value = data.managers.pm_id;
+                        pmOption.textContent = data.managers.pm_name;
+                        pmSelect.appendChild(pmOption);
+                        pmSelect.value = data.managers.pm_id;
                     }
-                } catch (error) {
-                    console.error('Erreur:', error);
+
+                    if (data.managers.em_id) {
+                        const emOption = document.createElement('option');
+                        emOption.value = data.managers.em_id;
+                        emOption.textContent = data.managers.em_name;
+                        emSelect.appendChild(emOption);
+                        emSelect.value = data.managers.em_id;
+                    }
+
+                    if (data.managers.dm_id) {
+                        const dmOption = document.createElement('option');
+                        dmOption.value = data.managers.dm_id;
+                        dmOption.textContent = data.managers.dm_name;
+                        dmSelect.appendChild(dmOption);
+                        dmSelect.value = data.managers.dm_id;
+                    }
                 }
-            } else {
-                // Pour les autres rôles, réinitialiser les managers
-                updateManagerSelects();
+            } catch (error) {
+                console.error('Erreur:', error);
             }
         }
 
         // Fonction pour gérer le changement de rôle
         function handleRoleChange(role) {
-            const service = document.getElementById('pool').value;
-            if (service) {
-                handleServiceChange(service);
+            const poolSelect = document.getElementById('pool');
+            const pmSelect = document.getElementById('pm_id');
+            const emSelect = document.getElementById('em_id');
+            const dmSelect = document.getElementById('dm_id');
+
+            // Réinitialiser les selects
+            pmSelect.innerHTML = '<option value="">--</option>';
+            emSelect.innerHTML = '<option value="">--</option>';
+            dmSelect.innerHTML = '<option value="">--</option>';
+
+            if (role === 'salarié') {
+                poolSelect.required = true;
+                poolSelect.disabled = false;
+            } else {
+                poolSelect.required = false;
+                poolSelect.disabled = true;
+                poolSelect.value = '';
             }
         }
 

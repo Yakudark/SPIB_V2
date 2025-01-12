@@ -67,6 +67,9 @@ try {
                 exit;
             }
 
+            // Démarrer une transaction
+            $pdo->beginTransaction();
+
             // Insérer l'utilisateur
             $query = "INSERT INTO utilisateurs (nom, prenom, matricule, role, pool, pm_id, em_id, dm_id) 
                      VALUES (:nom, :prenom, :matricule, :role, :pool, :pm_id, :em_id, :dm_id)";
@@ -85,18 +88,22 @@ try {
             if ($result) {
                 $userId = $pdo->lastInsertId();
                 
-                // Créer l'entrée dans la table connexions avec le mot de passe par défaut
-                $defaultPassword = password_hash($data['matricule'], PASSWORD_DEFAULT);
+                // Ajouter l'entrée dans la table connexions avec le mot de passe par défaut
                 $connexionQuery = "INSERT INTO connexions (utilisateur_id, matricule, password) VALUES (:user_id, :matricule, :password)";
                 $connexionStmt = $pdo->prepare($connexionQuery);
                 $connexionStmt->execute([
                     'user_id' => $userId,
                     'matricule' => $data['matricule'],
-                    'password' => $defaultPassword
+                    'password' => '123456'  // Mot de passe par défaut
                 ]);
+
+                // Valider la transaction
+                $pdo->commit();
 
                 echo json_encode(['success' => true, 'message' => 'Utilisateur créé avec succès']);
             } else {
+                // En cas d'erreur, annuler la transaction
+                $pdo->rollBack();
                 echo json_encode(['success' => false, 'error' => 'Erreur lors de la création de l\'utilisateur']);
             }
             break;
@@ -164,8 +171,10 @@ try {
                 exit;
             }
 
-            // Supprimer d'abord les références dans les autres tables
+            // Démarrer une transaction
             $pdo->beginTransaction();
+
+            // Supprimer d'abord les références dans les autres tables
             try {
                 // Supprimer de la table connexions
                 $deleteConnexion = "DELETE FROM connexions WHERE utilisateur_id = ?";
@@ -185,9 +194,12 @@ try {
                 $userStmt = $pdo->prepare($deleteUser);
                 $userStmt->execute([$id]);
 
+                // Valider la transaction
                 $pdo->commit();
+
                 echo json_encode(['success' => true, 'message' => 'Utilisateur supprimé avec succès']);
             } catch (Exception $e) {
+                // En cas d'erreur, annuler la transaction
                 $pdo->rollBack();
                 echo json_encode(['success' => false, 'error' => 'Erreur lors de la suppression: ' . $e->getMessage()]);
             }

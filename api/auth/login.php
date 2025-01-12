@@ -30,7 +30,7 @@ try {
     $stmt->execute(['matricule' => $matricule]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && password_verify($password, $user['password'])) {
+    if ($user && $password === $user['password']) {  // Comparaison directe car les mots de passe sont en texte brut
         // Connexion réussie
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['matricule'] = $user['login_matricule'];
@@ -49,21 +49,18 @@ try {
             'user' => [
                 'id' => $user['id'],
                 'matricule' => $user['login_matricule'],
+                'role' => $user['role'],
                 'nom' => $user['nom'],
-                'prenom' => $user['prenom'],
-                'role' => $user['role']
+                'prenom' => $user['prenom']
             ]
         ]);
     } else {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Matricule ou mot de passe incorrect'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Matricule ou mot de passe incorrect']);
     }
+
 } catch (Exception $e) {
-    error_log('Erreur de connexion: ' . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'Une erreur est survenue lors de la connexion'
+        'message' => 'Erreur lors de la connexion: ' . $e->getMessage()
     ]);
 }
