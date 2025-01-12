@@ -21,7 +21,8 @@ try {
 
     // Compter le nombre total d'utilisateurs
     $countQuery = "SELECT COUNT(*) as total FROM utilisateurs";
-    $countStmt = $pdo->query($countQuery);
+    $countStmt = $pdo->prepare($countQuery);
+    $countStmt->execute();
     $totalUsers = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
     $totalPages = ceil($totalUsers / $limit);
 
@@ -44,7 +45,7 @@ try {
         ORDER BY u.nom, u.prenom
         LIMIT :limit OFFSET :offset
     ";
-    
+
     $stmt = $pdo->prepare($query);
     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);

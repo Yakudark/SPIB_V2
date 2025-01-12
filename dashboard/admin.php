@@ -154,49 +154,56 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             </div>
 
             <!-- Tableau des utilisateurs -->
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matricule</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PM</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">EM</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DM</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pool</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="users-table">
-                            <!-- Les données seront insérées ici dynamiquement -->
-                        </tbody>
-                    </table>
+            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nom
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Prénom
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Matricule
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Service
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Rôle
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
+                        <!-- Les données seront insérées ici par JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button id="prev-page-mobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Précédent
+                    </button>
+                    <button id="next-page-mobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Suivant
+                    </button>
                 </div>
-                
-                <!-- Pagination -->
-                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                    <div class="flex-1 flex justify-between sm:hidden">
-                        <button id="prev-page-mobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Précédent
-                        </button>
-                        <button id="next-page-mobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Suivant
-                        </button>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Affichage de <span class="font-medium" id="start-item">-</span> à <span class="font-medium" id="end-item">-</span> sur <span class="font-medium" id="total-items">-</span> utilisateurs
+                        </p>
                     </div>
-                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                        <div>
-                            <p class="text-sm text-gray-700">
-                                Affichage de <span class="font-medium" id="start-item">-</span> à <span class="font-medium" id="end-item">-</span> sur <span class="font-medium" id="total-items">-</span> utilisateurs
-                            </p>
-                        </div>
-                        <div>
-                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination" id="pagination-container">
-                                <!-- Les boutons de pagination seront insérés ici dynamiquement -->
-                            </nav>
-                        </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination" id="pagination-container">
+                            <!-- Les boutons de pagination seront insérés ici dynamiquement -->
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -206,275 +213,60 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
     <script>
         let currentPage = 1;
         let totalPages = 1;
-        const itemsPerPage = 10;
-        let editMode = false;
-        let managers = [];
-        let services = [];
-
-        // Fonction pour charger les services
-        async function loadServices() {
-            try {
-                const response = await fetch('/JS/SPIB/api/admin/services.php');
-                const data = await response.json();
-                if (data.success) {
-                    services = data.services;
-                    updateServiceSelect();
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
-        }
-
-        // Mettre à jour le select des services
-        function updateServiceSelect() {
-            const select = document.getElementById('pool');
-            select.innerHTML = '<option value="">Sélectionner un service</option>';
-            services.forEach(service => {
-                const option = document.createElement('option');
-                option.value = service.nom_service;
-                option.textContent = service.nom_service;
-                select.appendChild(option);
-            });
-        }
-
-        // Fonction pour charger les managers (PM, EM, DM)
-        async function loadManagers() {
-            try {
-                const response = await fetch('/JS/SPIB/api/admin/users.php');
-                const data = await response.json();
-                if (data.success) {
-                    managers = data.users;
-                    updateManagerSelects();
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
-        }
-
-        // Mettre à jour les selects des managers en fonction du rôle
-        function updateManagerSelects() {
-            const pmSelect = document.getElementById('pm_id');
-            const emSelect = document.getElementById('em_id');
-            const dmSelect = document.getElementById('dm_id');
-
-            // Réinitialiser les selects
-            pmSelect.innerHTML = '<option value="">--</option>';
-            emSelect.innerHTML = '<option value="">--</option>';
-            dmSelect.innerHTML = '<option value="">--</option>';
-
-            // Filtrer les managers par rôle
-            const pms = managers.filter(m => m.role === 'PM');
-            const ems = managers.filter(m => m.role === 'EM');
-            const dms = managers.filter(m => m.role === 'DM');
-
-            // Remplir les selects avec les managers correspondants
-            pms.forEach(pm => {
-                const option = document.createElement('option');
-                option.value = pm.id;
-                option.textContent = `${pm.prenom} ${pm.nom}`;
-                pmSelect.appendChild(option);
-            });
-
-            ems.forEach(em => {
-                const option = document.createElement('option');
-                option.value = em.id;
-                option.textContent = `${em.prenom} ${em.nom}`;
-                emSelect.appendChild(option);
-            });
-
-            dms.forEach(dm => {
-                const option = document.createElement('option');
-                option.value = dm.id;
-                option.textContent = `${dm.prenom} ${dm.nom}`;
-                dmSelect.appendChild(option);
-            });
-        }
-
-        // Fonction pour ouvrir le modal
-        async function openUserModal(userId = null) {
-            editMode = userId !== null;
-            const modal = document.getElementById('userModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const form = document.getElementById('userForm');
-            
-            modalTitle.textContent = editMode ? 'Modifier l\'utilisateur' : 'Ajouter un utilisateur';
-            form.reset();
-            
-            if (editMode) {
-                try {
-                    const response = await fetch(`/JS/SPIB/api/admin/user_operations.php?id=${userId}`);
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        const user = data.user;
-                        fillUserModal(user);
-                    } else {
-                        showNotification('Erreur lors de la récupération des données de l\'utilisateur', 'error');
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Erreur:', error);
-                    showNotification('Erreur lors de la récupération des données de l\'utilisateur', 'error');
-                    return;
-                }
-            }
-            
-            modal.classList.remove('hidden');
-        }
-
-        // Fonction pour remplir le modal avec les données de l'utilisateur
-        async function fillUserModal(userData) {
-            document.getElementById('userId').value = userData.id;
-            document.getElementById('nom').value = userData.nom;
-            document.getElementById('prenom').value = userData.prenom;
-            document.getElementById('matricule').value = userData.matricule;
-            document.getElementById('role').value = userData.role;
-            document.getElementById('pool').value = userData.pool || '';
-
-            // Mettre à jour les selects des managers
-            updateManagerSelects();
-
-            // Sélectionner les managers actuels
-            if (userData.pm_id) {
-                document.getElementById('pm_id').value = userData.pm_id;
-            }
-            if (userData.em_id) {
-                document.getElementById('em_id').value = userData.em_id;
-            }
-            if (userData.dm_id) {
-                document.getElementById('dm_id').value = userData.dm_id;
-            }
-
-            // Si c'est un salarié, on met à jour les managers en fonction du service
-            if (userData.role === 'salarié' && userData.pool) {
-                handleServiceChange(userData.pool);
-            }
-        }
-
-        // Fonction pour fermer le modal
-        function closeUserModal() {
-            document.getElementById('userModal').classList.add('hidden');
-            document.getElementById('userForm').reset();
-        }
-
-        // Fonction pour gérer la soumission du formulaire
-        async function handleUserSubmit(event) {
-            event.preventDefault();
-            const form = event.target;
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            
-            try {
-                const method = editMode ? 'PUT' : 'POST';
-                const response = await fetch('/JS/SPIB/api/admin/user_operations.php', {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    closeUserModal();
-                    loadUsers(currentPage);
-                    loadManagers();
-                    loadServices();
-                    showNotification(result.message, 'success');
-                } else {
-                    showNotification(result.error, 'error');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                showNotification('Une erreur est survenue', 'error');
-            }
-        }
-
-        // Fonction pour supprimer un utilisateur
-        async function deleteUser(userId) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/JS/SPIB/api/admin/user_operations.php?id=${userId}`, {
-                    method: 'DELETE'
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    loadUsers(currentPage);
-                    loadManagers();
-                    loadServices();
-                    showNotification(result.message, 'success');
-                } else {
-                    showNotification(result.error, 'error');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                showNotification('Une erreur est survenue', 'error');
-            }
-        }
-
-        // Fonction pour afficher une notification
-        function showNotification(message, type = 'success') {
-            const notif = document.createElement('div');
-            notif.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            }`;
-            notif.textContent = message;
-            document.body.appendChild(notif);
-            
-            setTimeout(() => {
-                notif.remove();
-            }, 3000);
-        }
 
         // Fonction pour charger les utilisateurs
         async function loadUsers(page = 1) {
             try {
-                const response = await fetch(`/JS/SPIB/api/admin/users.php?page=${page}&limit=${itemsPerPage}`);
+                const response = await fetch(`/JS/SPIB/api/admin/users.php?page=${page}`);
                 const data = await response.json();
                 
                 if (data.success) {
-                    const tbody = document.getElementById('users-table');
-                    tbody.innerHTML = '';
-                    
-                    data.users.forEach(user => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.nom}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.prenom}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.matricule}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.pm_name || '-'}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.em_name || '-'}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.dm_name || '-'}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                    ${user.role}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.pool || '-'}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <button onclick="openUserModal(${user.id})" class="text-blue-600 hover:text-blue-900">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-900">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-
-                    // Mettre à jour la pagination
+                    displayUsers(data.users);
+                    updatePagination(data.pagination);
                     currentPage = data.pagination.current_page;
                     totalPages = data.pagination.total_pages;
-                    updatePagination(data.pagination);
                 }
             } catch (error) {
                 console.error('Erreur:', error);
+                showNotification('Erreur lors du chargement des utilisateurs', 'error');
             }
+        }
+
+        // Fonction pour afficher les utilisateurs
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.classList.add('hover:bg-gray-50');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${user.nom}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${user.prenom}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${user.matricule}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${user.pool || '-'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${user.role}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="openUserModal(${user.id})" class="text-indigo-600 hover:text-indigo-900 mr-4">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         // Fonction pour mettre à jour la pagination
@@ -531,6 +323,213 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             document.getElementById('next-page-mobile').onclick = () => loadUsers(pagination.current_page + 1);
             document.getElementById('prev-page-mobile').disabled = pagination.current_page === 1;
             document.getElementById('next-page-mobile').disabled = pagination.current_page === pagination.total_pages;
+        }
+
+        // Fonction pour ouvrir le modal
+        async function openUserModal(userId = null) {
+            const modal = document.getElementById('userModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const form = document.getElementById('userForm');
+            
+            modalTitle.textContent = userId ? 'Modifier l\'utilisateur' : 'Ajouter un utilisateur';
+            form.reset();
+            
+            if (userId) {
+                try {
+                    const response = await fetch(`/JS/SPIB/api/admin/user_operations.php?id=${userId}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const user = data.user;
+                        fillUserModal(user);
+                    } else {
+                        showNotification('Erreur lors de la récupération des données de l\'utilisateur', 'error');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showNotification('Erreur lors de la récupération des données de l\'utilisateur', 'error');
+                    return;
+                }
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // Fonction pour remplir le modal avec les données de l'utilisateur
+        async function fillUserModal(userData) {
+            document.getElementById('userId').value = userData.id;
+            document.getElementById('nom').value = userData.nom;
+            document.getElementById('prenom').value = userData.prenom;
+            document.getElementById('matricule').value = userData.matricule;
+            document.getElementById('role').value = userData.role;
+            document.getElementById('pool').value = userData.pool || '';
+
+            // Mettre à jour les selects des managers
+            updateManagerSelects(userData);
+
+            // Sélectionner les managers actuels
+            if (userData.pm_id) {
+                document.getElementById('pm_id').value = userData.pm_id;
+            }
+            if (userData.em_id) {
+                document.getElementById('em_id').value = userData.em_id;
+            }
+            if (userData.dm_id) {
+                document.getElementById('dm_id').value = userData.dm_id;
+            }
+        }
+
+        // Fonction pour fermer le modal
+        function closeUserModal() {
+            document.getElementById('userModal').classList.add('hidden');
+            document.getElementById('userForm').reset();
+        }
+
+        // Fonction pour gérer la soumission du formulaire
+        async function handleUserSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const method = document.getElementById('userId').value ? 'PUT' : 'POST';
+                const response = await fetch('/JS/SPIB/api/admin/user_operations.php', {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    closeUserModal();
+                    loadUsers(currentPage);
+                    showNotification(result.message, 'success');
+                } else {
+                    showNotification(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Une erreur est survenue', 'error');
+            }
+        }
+
+        // Fonction pour supprimer un utilisateur
+        async function deleteUser(userId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/JS/SPIB/api/admin/user_operations.php?id=${userId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    loadUsers(currentPage);
+                    showNotification(result.message, 'success');
+                } else {
+                    showNotification(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Une erreur est survenue', 'error');
+            }
+        }
+
+        // Fonction pour afficher une notification
+        function showNotification(message, type = 'success') {
+            const notif = document.createElement('div');
+            notif.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.remove();
+            }, 3000);
+        }
+
+        // Fonction pour charger les managers (PM, EM, DM)
+        async function loadManagers() {
+            try {
+                const response = await fetch('/JS/SPIB/api/admin/users.php');
+                const data = await response.json();
+                if (data.success) {
+                    updateManagerSelects(data.users);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        // Mettre à jour les selects des managers en fonction du rôle
+        function updateManagerSelects(users) {
+            const pmSelect = document.getElementById('pm_id');
+            const emSelect = document.getElementById('em_id');
+            const dmSelect = document.getElementById('dm_id');
+
+            // Réinitialiser les selects
+            pmSelect.innerHTML = '<option value="">--</option>';
+            emSelect.innerHTML = '<option value="">--</option>';
+            dmSelect.innerHTML = '<option value="">--</option>';
+
+            // Filtrer les managers par rôle
+            const pms = users.filter(m => m.role === 'PM');
+            const ems = users.filter(m => m.role === 'EM');
+            const dms = users.filter(m => m.role === 'DM');
+
+            // Remplir les selects avec les managers correspondants
+            pms.forEach(pm => {
+                const option = document.createElement('option');
+                option.value = pm.id;
+                option.textContent = `${pm.prenom} ${pm.nom}`;
+                pmSelect.appendChild(option);
+            });
+
+            ems.forEach(em => {
+                const option = document.createElement('option');
+                option.value = em.id;
+                option.textContent = `${em.prenom} ${em.nom}`;
+                emSelect.appendChild(option);
+            });
+
+            dms.forEach(dm => {
+                const option = document.createElement('option');
+                option.value = dm.id;
+                option.textContent = `${dm.prenom} ${dm.nom}`;
+                dmSelect.appendChild(option);
+            });
+        }
+
+        // Fonction pour charger les services
+        async function loadServices() {
+            try {
+                const response = await fetch('/JS/SPIB/api/admin/services.php');
+                const data = await response.json();
+                if (data.success) {
+                    updateServiceSelect(data.services);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        // Mettre à jour le select des services
+        function updateServiceSelect(services) {
+            const select = document.getElementById('pool');
+            select.innerHTML = '<option value="">Sélectionner un service</option>';
+            services.forEach(service => {
+                const option = document.createElement('option');
+                option.value = service.nom_service;
+                option.textContent = service.nom_service;
+                select.appendChild(option);
+            });
         }
 
         // Fonction pour gérer le changement de service
@@ -604,8 +603,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             }
         }
 
-        // Charger les données au chargement de la page
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
             loadUsers(1);
             loadManagers();
             loadServices();

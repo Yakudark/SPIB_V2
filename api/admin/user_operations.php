@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
 }
 
 // Liste des rôles autorisés
-const ROLES_AUTORISES = ['salarié', 'RH', 'EM', 'PM', 'DM'];
+const ROLES_AUTORISES = ['salarié', 'RH', 'EM', 'PM', 'DM', 'RH'];
 
 // Fonction pour valider le rôle
 function validerRole($role) {
