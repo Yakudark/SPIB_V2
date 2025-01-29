@@ -1,6 +1,6 @@
 <?php
 // Clé secrète pour signer les tokens JWT
-define('JWT_SECRET', 'votre_cle_secrete_spib_2024');
+define('JWT_SECRET', 'votre_cle_secrete_stib_2024');
 
 function generateJWT($payload) {
     // Header

@@ -1,16 +1,16 @@
-# SPIB - Système de Gestion des Entretiens
+# STIB - Système de Gestion des Entretiens
 
 ## Installation en local (Intranet)
 
 1. Cloner le projet dans le dossier www de WAMP :
    ```bash
    cd c:/wamp64/www/JS
-   git clone [URL_DU_REPO] SPIB
+   git clone [URL_DU_REPO] STIB
    ```
 
 2. Créer la base de données :
    - Ouvrir phpMyAdmin (http://localhost/phpmyadmin)
-   - Créer une nouvelle base de données nommée "spib_gestion"
+   - Créer une nouvelle base de données nommée "stib_gestion"
    - Importer le fichier `database/init.sql`
 
 3. Configurer l'accès à la base de données :
@@ -32,12 +32,12 @@
    - Les fichiers .htaccess sont déjà configurés pour le routage
 
 7. Accéder à l'application :
-   - Ouvrir http://localhost/JS/SPIB dans un navigateur
+   - Ouvrir http://localhost/JS/STIB dans un navigateur
 
 ## Structure du projet
 
 ```
-SPIB/
+STIB/
 ├── api/              # Point d'entrée de l'API
 ├── config/           # Fichiers de configuration
 ├── controllers/      # Contrôleurs

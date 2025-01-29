@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPIB - Connexion</title>
+    <title>STIB - Connexion</title>
     <link href="css/style.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="max-w-md w-full mx-4">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-primary">SPIB</h1>
+            <h1 class="text-3xl font-bold text-primary">STIB</h1>
             <p class="text-gray-600">Système de Gestion des Entretiens</p>
         </div>
         

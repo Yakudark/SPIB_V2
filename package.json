@@ -1,7 +1,7 @@
 {
-  "name": "spib-gestion",
+  "name": "stib-gestion",
   "version": "1.0.0",
-  "description": "Système de gestion des employés SPIB",
+  "description": "Système de gestion des employés STIB",
   "private": true,
   "scripts": {
     "build": "node build.js",

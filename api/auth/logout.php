@@ -13,5 +13,6 @@ if (isset($_COOKIE[session_name()])) {
 }
 
 // Rediriger vers la page de login
-header('Location: /JS/SPIB/public/views/login.php');
+header('Location: /JS/STIB/public/views/login.php');
 exit;
+?>

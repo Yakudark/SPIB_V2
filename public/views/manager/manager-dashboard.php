@@ -7,16 +7,16 @@ $user = checkRole(['PM', 'EM', 'DM']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPIB - Espace Manager</title>
-    <link href="/JS/SPIB/public/css/tailwind.min.css" rel="stylesheet">
-    <link href="/JS/SPIB/public/css/style.css" rel="stylesheet">
-    <script src="/JS/SPIB/public/lib/draggable.bundle.min.js"></script>
+    <title>STIB - Espace Manager</title>
+    <link href="/JS/STIB/public/css/tailwind.min.css" rel="stylesheet">
+    <link href="/JS/STIB/public/css/style.css" rel="stylesheet">
+    <script src="/JS/STIB/public/lib/draggable.bundle.min.js"></script>
 </head>
 <body class="bg-gray-100">
     <nav class="bg-primary text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
-                <div class="text-xl font-bold">SPIB - <?php echo htmlspecialchars($user['role']); ?></div>
+                <div class="text-xl font-bold">STIB - <?php echo htmlspecialchars($user['role']); ?></div>
                 <div class="hidden md:flex space-x-4">
                     <a href="#" class="hover:text-gray-200" data-page="team">Mon équipe</a>
                     <a href="#" class="hover:text-gray-200" data-page="interviews">Entretiens</a>
@@ -124,7 +124,7 @@ $user = checkRole(['PM', 'EM', 'DM']);
                 const zone = event.data.newContainer.dataset.zone;
                 
                 try {
-                    const response = await fetch('/JS/SPIB/api/interviews', {
+                    const response = await fetch('/JS/STIB/api/interviews', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -183,7 +183,7 @@ $user = checkRole(['PM', 'EM', 'DM']);
         // Chargement de l'équipe
         async function loadTeamMembers() {
             try {
-                const response = await fetch('/JS/SPIB/api/users/team/<?php echo $user['id']; ?>');
+                const response = await fetch('/JS/STIB/api/users/team/<?php echo $user['id']; ?>');
                 const data = await response.json();
                 
                 const container = document.getElementById('teamMembers');
@@ -211,7 +211,7 @@ $user = checkRole(['PM', 'EM', 'DM']);
         // Chargement des statistiques
         async function loadStatistics() {
             try {
-                const response = await fetch('/JS/SPIB/api/statistics/manager/<?php echo $user['id']; ?>');
+                const response = await fetch('/JS/STIB/api/statistics/manager/<?php echo $user['id']; ?>');
                 const data = await response.json();
                 
                 // Mise à jour des statistiques
@@ -250,8 +250,8 @@ $user = checkRole(['PM', 'EM', 'DM']);
         // Déconnexion
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try {
-                await fetch('/JS/SPIB/api/auth/logout', { method: 'POST' });
-                window.location.href = '/JS/SPIB/public/login.php';
+                await fetch('/JS/STIB/api/auth/logout', { method: 'POST' });
+                window.location.href = '/JS/STIB/public/login.php';
             } catch (error) {
                 console.error('Erreur de déconnexion:', error);
             }

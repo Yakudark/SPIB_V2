@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
-    header('Location: /JS/SPIB/public/views/login.php');
+    header('Location: /JS/STIB/public/views/login.php');
     exit;
 }
 ?>
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - SPIB</title>
+    <title>Dashboard Admin - STIB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -19,7 +19,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
     <div class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg">
         <div class="p-4">
             <div class="flex items-center justify-center mb-8">
-                <img src="/JS/SPIB/public/assets/img/logo.png" alt="SPIB Logo" class="h-12">
+                <img src="/JS/STIB/public/assets/img/logo.png" alt="STIB Logo" class="h-12">
             </div>
             <nav class="space-y-2">
                 <a href="#" class="flex items-center p-3 text-gray-900 rounded-lg bg-blue-100">
@@ -31,7 +31,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
         </div>
         <!-- Bouton déconnexion -->
         <div class="absolute bottom-0 w-full p-4">
-            <a href="/JS/SPIB/api/auth/logout.php" class="flex items-center justify-center p-3 text-red-600 hover:bg-red-50 rounded-lg">
+            <a href="/JS/STIB/api/auth/logout.php" class="flex items-center justify-center p-3 text-red-600 hover:bg-red-50 rounded-lg">
                 <i class="fas fa-sign-out-alt mr-3"></i>
                 <span>Déconnexion</span>
             </a>
@@ -108,6 +108,83 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
                                             <select id="pool" name="pool" onchange="handleServiceChange(this.value)"
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                                 <option value="">Sélectionner un service</option>
+                                                <option value="DELTA">DELTA</option>
+                                                <option value="Delta 1-2">Delta 1-2</option>
+                                                <option value="Delta 1-3">Delta 1-3</option>
+                                                <option value="Delta 1-4">Delta 1-4</option>
+                                                <option value="Delta 1-5">Delta 1-5</option>
+                                                <option value="Delta 1-6">Delta 1-6</option>
+                                                <option value="Delta 1-7">Delta 1-7</option>
+                                                <option value="Delta 1-8">Delta 1-8</option>
+                                                <option value="Delta 2-1">Delta 2-1</option>
+                                                <option value="Delta 2-2">Delta 2-2</option>
+                                                <option value="Delta 2-3">Delta 2-3</option>
+                                                <option value="Delta 2-4">Delta 2-4</option>
+                                                <option value="Delta 2-5">Delta 2-5</option>
+                                                <option value="Delta 2-6">Delta 2-6</option>
+                                                <option value="BREL">BREL</option>
+                                                <option value="Brel 1-1">Brel 1-1</option>
+                                                <option value="Brel 1-2">Brel 1-2</option>
+                                                <option value="Brel 1-3">Brel 1-3</option>
+                                                <option value="Brel 1-4">Brel 1-4</option>
+                                                <option value="Brel 1-5">Brel 1-5</option>
+                                                <option value="Brel 1-6">Brel 1-6</option>
+                                                <option value="Brel 1-7">Brel 1-7</option>
+                                                <option value="Brel 1-8">Brel 1-8</option>
+                                                <option value="Brel 2-1">Brel 2-1</option>
+                                                <option value="Brel 2-2">Brel 2-2</option>
+                                                <option value="Brel 2-3">Brel 2-3</option>
+                                                <option value="Brel 2-4">Brel 2-4</option>
+                                                <option value="Brel 2-5">Brel 2-5</option>
+                                                <option value="Brel 2-6">Brel 2-6</option>
+                                                <option value="Brel 2-7">Brel 2-7</option>
+                                                <option value="Brel 2-8">Brel 2-8</option>
+                                                <option value="Brel 2-9">Brel 2-9</option>
+                                                <option value="HAREM">HAREM</option>
+                                                <option value="Ha 1-1">Ha 1-1</option>
+                                                <option value="Ha 1-2">Ha 1-2</option>
+                                                <option value="Ha 1-3">Ha 1-3</option>
+                                                <option value="Ha 1-4">Ha 1-4</option>
+                                                <option value="Ha 1-5">Ha 1-5</option>
+                                                <option value="Ha 1-6">Ha 1-6</option>
+                                                <option value="Ha 2-1">Ha 2-1</option>
+                                                <option value="Ha 2-2">Ha 2-2</option>
+                                                <option value="Ha 2-3">Ha 2-3</option>
+                                                <option value="Ha 2-4">Ha 2-4</option>
+                                                <option value="Ha 2-5">Ha 2-5</option>
+                                                <option value="Ha 2-6">Ha 2-6</option>
+                                                <option value="Ha 2-7">Ha 2-7</option>
+                                                <option value="Ha 3-1">Ha 3-1</option>
+                                                <option value="Ha 3-2">Ha 3-2</option>
+                                                <option value="Ha 3-3">Ha 3-3</option>
+                                                <option value="Ha 3-4">Ha 3-4</option>
+                                                <option value="Ha 3-6">Ha 3-6</option>
+                                                <option value="PIKE">PIKE</option>
+                                                <option value="Pike 1-1">Pike 1-1</option>
+                                                <option value="Pike 1-3">Pike 1-3</option>
+                                                <option value="Pike 1-4">Pike 1-4</option>
+                                                <option value="Pike 1-5">Pike 1-5</option>
+                                                <option value="Pike 1-6">Pike 1-6</option>
+                                                <option value="Pike 1-7">Pike 1-7</option>
+                                                <option value="Pike 2-1">Pike 2-1</option>
+                                                <option value="Pike 2-2">Pike 2-2</option>
+                                                <option value="Pike 2-3">Pike 2-3</option>
+                                                <option value="Pike 2-4">Pike 2-4</option>
+                                                <option value="Pike 2-5">Pike 2-5</option>
+                                                <option value="Pike 2-6">Pike 2-6</option>
+                                                <option value="Pike 2-7">Pike 2-7</option>
+                                                <option value="MARLY">MARLY</option>
+                                                <option value="Marly 1-1">Marly 1-1</option>
+                                                <option value="Marly 1-2">Marly 1-2</option>
+                                                <option value="Marly 1-3">Marly 1-3</option>
+                                                <option value="Marly 1-4">Marly 1-4</option>
+                                                <option value="Marly 1-5">Marly 1-5</option>
+                                                <option value="Marly 1-6">Marly 1-6</option>
+                                                <option value="Marly 1-7">Marly 1-7</option>
+                                                <option value="Marly 1-8">Marly 1-8</option>
+                                                <option value="Marly 1-9">Marly 1-9</option>
+                                                <option value="Marly 1-10">Marly 1-10</option>
+                                                <option value="Marly 1-11">Marly 1-11</option>
                                             </select>
                                         </div>
                                         
@@ -214,10 +291,15 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
         let currentPage = 1;
         let totalPages = 1;
 
+        // Charger les utilisateurs au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+        });
+
         // Fonction pour charger les utilisateurs
         async function loadUsers(page = 1) {
             try {
-                const response = await fetch(`/JS/SPIB/api/admin/users.php?page=${page}`);
+                const response = await fetch(`/JS/STIB/api/admin/users.php?page=${page}`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -336,7 +418,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             
             if (userId) {
                 try {
-                    const response = await fetch(`/JS/SPIB/api/admin/user_operations.php?id=${userId}`);
+                    const response = await fetch(`/JS/STIB/api/admin/user_operations.php?id=${userId}`);
                     const data = await response.json();
                     
                     if (data.success) {
@@ -365,18 +447,22 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             document.getElementById('role').value = userData.role;
             document.getElementById('pool').value = userData.pool || '';
 
-            // Mettre à jour les selects des managers
-            updateManagerSelects(userData);
-
-            // Sélectionner les managers actuels
-            if (userData.pm_id) {
-                document.getElementById('pm_id').value = userData.pm_id;
-            }
-            if (userData.em_id) {
-                document.getElementById('em_id').value = userData.em_id;
-            }
-            if (userData.dm_id) {
-                document.getElementById('dm_id').value = userData.dm_id;
+            try {
+                // Récupérer tous les utilisateurs pour les listes de managers
+                const response = await fetch('/JS/STIB/api/admin/list_users.php');
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Mettre à jour les selects des managers avec la liste complète des utilisateurs
+                    updateManagerSelects(result.users);
+                    
+                    // Sélectionner les managers actuels
+                    if (userData.pm_id) document.getElementById('pm_id').value = userData.pm_id;
+                    if (userData.em_id) document.getElementById('em_id').value = userData.em_id;
+                    if (userData.dm_id) document.getElementById('dm_id').value = userData.dm_id;
+                }
+            } catch (error) {
+                console.error('Erreur lors de la récupération des managers:', error);
             }
         }
 
@@ -391,11 +477,28 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             event.preventDefault();
             const form = event.target;
             const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
+            const data = {};
+            
+            // Convertir FormData en objet simple
+            for (let [key, value] of formData.entries()) {
+                // Convertir les chaînes vides en null pour les champs optionnels
+                if (key === 'userId' && value === '') {
+                    continue; // Ne pas inclure userId s'il est vide (cas d'un nouvel utilisateur)
+                }
+                data[key] = value === '' ? null : value;
+            }
+
+            // Si c'est une modification, utiliser l'ID de l'utilisateur
+            const userId = document.getElementById('userId').value;
+            if (userId) {
+                data.id = userId;
+            }
             
             try {
-                const method = document.getElementById('userId').value ? 'PUT' : 'POST';
-                const response = await fetch('/JS/SPIB/api/admin/user_operations.php', {
+                const method = userId ? 'PUT' : 'POST';
+                console.log('Données envoyées au serveur:', data);
+                
+                const response = await fetch('/JS/STIB/api/admin/user_operations.php', {
                     method: method,
                     headers: {
                         'Content-Type': 'application/json',
@@ -403,17 +506,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
                     body: JSON.stringify(data)
                 });
                 
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("La réponse n'est pas au format JSON");
+                }
+                
                 const result = await response.json();
+                console.log('Réponse du serveur:', result);
+                
                 if (result.success) {
                     closeUserModal();
                     loadUsers(currentPage);
                     showNotification(result.message, 'success');
                 } else {
-                    showNotification(result.error, 'error');
+                    showNotification(result.error || 'Une erreur est survenue', 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                showNotification('Une erreur est survenue', 'error');
+                showNotification('Une erreur est survenue lors de la communication avec le serveur', 'error');
             }
         }
 
@@ -424,7 +534,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             }
             
             try {
-                const response = await fetch(`/JS/SPIB/api/admin/user_operations.php?id=${userId}`, {
+                const response = await fetch(`/JS/STIB/api/admin/user_operations.php?id=${userId}`, {
                     method: 'DELETE'
                 });
                 
@@ -458,7 +568,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
         // Fonction pour charger les managers (PM, EM, DM)
         async function loadManagers() {
             try {
-                const response = await fetch('/JS/SPIB/api/admin/users.php');
+                const response = await fetch('/JS/STIB/api/admin/users.php');
                 const data = await response.json();
                 if (data.success) {
                     updateManagerSelects(data.users);
@@ -470,6 +580,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
 
         // Mettre à jour les selects des managers en fonction du rôle
         function updateManagerSelects(users) {
+            if (!Array.isArray(users)) {
+                console.error('La liste des utilisateurs n\'est pas un tableau');
+                return;
+            }
+
             const pmSelect = document.getElementById('pm_id');
             const emSelect = document.getElementById('em_id');
             const dmSelect = document.getElementById('dm_id');
@@ -510,7 +625,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
         // Fonction pour charger les services
         async function loadServices() {
             try {
-                const response = await fetch('/JS/SPIB/api/admin/services.php');
+                const response = await fetch('/JS/STIB/api/admin/services.php');
                 const data = await response.json();
                 if (data.success) {
                     updateServiceSelect(data.services);
@@ -526,8 +641,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             select.innerHTML = '<option value="">Sélectionner un service</option>';
             services.forEach(service => {
                 const option = document.createElement('option');
-                option.value = service.nom_service;
-                option.textContent = service.nom_service;
+                option.value = service.pool;
+                option.textContent = service.pool;
                 select.appendChild(option);
             });
         }
@@ -537,7 +652,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             if (!service) return;
 
             try {
-                const response = await fetch(`/JS/SPIB/api/admin/service_managers.php?service=${encodeURIComponent(service)}`);
+                const response = await fetch(`/JS/STIB/api/admin/service_managers.php?service=${encodeURIComponent(service)}`);
                 const data = await response.json();
                 
                 if (data.success && data.managers) {
@@ -588,18 +703,50 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             const emSelect = document.getElementById('em_id');
             const dmSelect = document.getElementById('dm_id');
 
-            // Réinitialiser les selects
-            pmSelect.innerHTML = '<option value="">--</option>';
-            emSelect.innerHTML = '<option value="">--</option>';
-            dmSelect.innerHTML = '<option value="">--</option>';
+            // Réinitialiser tous les selects
+            pmSelect.value = '';
+            emSelect.value = '';
+            dmSelect.value = '';
 
-            if (role === 'salarié') {
-                poolSelect.required = true;
-                poolSelect.disabled = false;
-            } else {
-                poolSelect.required = false;
-                poolSelect.disabled = true;
-                poolSelect.value = '';
+            // Désactiver tous les selects par défaut
+            pmSelect.disabled = true;
+            emSelect.disabled = true;
+            dmSelect.disabled = true;
+            poolSelect.disabled = true;
+
+            // Activer/désactiver les champs en fonction du rôle
+            switch(role.toLowerCase()) {
+                case 'salarié':
+                    poolSelect.disabled = false;
+                    pmSelect.disabled = false;
+                    emSelect.disabled = false;
+                    dmSelect.disabled = false;
+                    break;
+                case 'pm':
+                    poolSelect.disabled = false;
+                    emSelect.disabled = false;
+                    dmSelect.disabled = false;
+                    break;
+                case 'em':
+                    poolSelect.disabled = false;
+                    dmSelect.disabled = false;
+                    break;
+                case 'dm':
+                    poolSelect.disabled = false;
+                    break;
+            }
+        }
+
+        // Fonction pour charger les managers (PM, EM, DM)
+        async function loadManagers() {
+            try {
+                const response = await fetch('/JS/STIB/api/admin/users.php');
+                const data = await response.json();
+                if (data.success) {
+                    updateManagerSelects(data.users);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
             }
         }
 

@@ -1,7 +1,7 @@
 // Fonction pour vérifier la validité du token
 async function checkToken(token) {
     try {
-        const response = await fetch('/JS/SPIB/api/auth/check_token.php', {
+        const response = await fetch('/JS/STIB/api/auth/check_token.php', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -19,7 +19,7 @@ if (window.location.pathname.includes('/public/views/login.php')) {
         const token = localStorage.getItem('token');
         if (token) {
             try {
-                const response = await fetch('/JS/SPIB/api/auth/check_token.php', {
+                const response = await fetch('/JS/STIB/api/auth/check_token.php', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -32,16 +32,16 @@ if (window.location.pathname.includes('/public/views/login.php')) {
                     switch(role) {
                         case 'SALARIÉ':
                         case 'SALARIE':
-                            window.location.href = '/JS/SPIB/dashboard/employee.php';
+                            window.location.href = '/JS/STIB/dashboard/employee.php';
                             break;
                         case 'MANAGER':
-                            window.location.href = '/JS/SPIB/dashboard/manager.php';
+                            window.location.href = '/JS/STIB/dashboard/manager.php';
                             break;
                         case 'ADMIN':
-                            window.location.href = '/JS/SPIB/dashboard/admin.php';
+                            window.location.href = '/JS/STIB/dashboard/admin.php';
                             break;
                         case 'PM':
-                            window.location.href = '/JS/SPIB/dashboard/pm.php';
+                            window.location.href = '/JS/STIB/dashboard/pm.php';
                             break;
                         default:
                             console.error('Rôle non reconnu:', role);
@@ -65,7 +65,7 @@ if (window.location.pathname.includes('/public/views/login.php')) {
             const password = document.getElementById('password').value;
             
             try {
-                const response = await fetch('/JS/SPIB/api/auth/login.php', {
+                const response = await fetch('/JS/STIB/api/auth/login.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -89,16 +89,16 @@ if (window.location.pathname.includes('/public/views/login.php')) {
                     switch(role) {
                         case 'SALARIÉ':
                         case 'SALARIE':
-                            window.location.href = '/JS/SPIB/dashboard/employee.php';
+                            window.location.href = '/JS/STIB/dashboard/employee.php';
                             break;
                         case 'MANAGER':
-                            window.location.href = '/JS/SPIB/dashboard/manager.php';
+                            window.location.href = '/JS/STIB/dashboard/manager.php';
                             break;
                         case 'ADMIN':
-                            window.location.href = '/JS/SPIB/dashboard/admin.php';
+                            window.location.href = '/JS/STIB/dashboard/admin.php';
                             break;
                         case 'PM':
-                            window.location.href = '/JS/SPIB/dashboard/pm.php';
+                            window.location.href = '/JS/STIB/dashboard/pm.php';
                             break;
                         default:
                             console.error('Rôle non reconnu:', role);

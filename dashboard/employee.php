@@ -1,11 +1,11 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /JS/SPIB/public/views/login.php');
+    header('Location: /JS/STIB/public/views/login.php');
     exit;
 }
 if ($_SESSION['role'] !== 'salarié') {
-    header('Location: /JS/SPIB/public/views/login.php');
+    header('Location: /JS/STIB/public/views/login.php');
     exit;
 }
 ?>
@@ -14,7 +14,7 @@ if ($_SESSION['role'] !== 'salarié') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPIB - Espace Salarié</title>
+    <title>STIB - Espace Salarié</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -101,7 +101,7 @@ if ($_SESSION['role'] !== 'salarié') {
         <!-- Boutons du bas -->
         <div class="space-y-2">
             
-            <a href="/JS/SPIB/api/auth/logout.php" class="block w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 border border-red-600 rounded shadow text-center">
+            <a href="/JS/STIB/api/auth/logout.php" class="block w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 border border-red-600 rounded shadow text-center">
                 Déconnexion
             </a>
            
@@ -226,7 +226,7 @@ if ($_SESSION['role'] !== 'salarié') {
         // Fonction pour charger les statistiques des absences
         async function loadAbsencesStats() {
             try {
-                const response = await fetch('/JS/SPIB/api/employee/absences_stats.php');
+                const response = await fetch('/JS/STIB/api/employee/absences_stats.php');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -246,7 +246,7 @@ if ($_SESSION['role'] !== 'salarié') {
         // Fonction pour charger les entretiens
         async function loadEntretiens() {
             try {
-                const response = await fetch('/JS/SPIB/api/employee/entretiens.php');
+                const response = await fetch('/JS/STIB/api/employee/entretiens.php');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -274,7 +274,7 @@ if ($_SESSION['role'] !== 'salarié') {
         // Fonction pour charger les demandes de congés
         async function loadVacationRequests() {
             try {
-                const response = await fetch('/JS/SPIB/api/employee/conges.php');
+                const response = await fetch('/JS/STIB/api/employee/conges.php');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -325,7 +325,7 @@ if ($_SESSION['role'] !== 'salarié') {
         // Fonction pour charger les absences
         async function loadAbsences(page = 1) {
             try {
-                const response = await fetch(`/JS/SPIB/api/employee/absences.php?page=${page}`);
+                const response = await fetch(`/JS/STIB/api/employee/absences.php?page=${page}`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -396,7 +396,7 @@ if ($_SESSION['role'] !== 'salarié') {
         // Fonction pour charger les entretiens
         async function loadEntretiens() {
             try {
-                const response = await fetch('/JS/SPIB/api/employee/entretiens.php');
+                const response = await fetch('/JS/STIB/api/employee/entretiens.php');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -424,7 +424,7 @@ if ($_SESSION['role'] !== 'salarié') {
         // Fonction pour charger les demandes de congés
         async function loadVacationRequests() {
             try {
-                const response = await fetch('/JS/SPIB/api/employee/conges.php');
+                const response = await fetch('/JS/STIB/api/employee/conges.php');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -487,7 +487,7 @@ if ($_SESSION['role'] !== 'salarié') {
             const formData = new FormData(this);
             
             try {
-                const response = await fetch('/JS/SPIB/api/employee/conges.php', {
+                const response = await fetch('/JS/STIB/api/employee/conges.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -520,7 +520,7 @@ if ($_SESSION['role'] !== 'salarié') {
             }
             
             try {
-                const response = await fetch('/JS/SPIB/api/employee/conges.php', {
+                const response = await fetch('/JS/STIB/api/employee/conges.php', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',

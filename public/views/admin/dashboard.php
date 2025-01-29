@@ -7,15 +7,15 @@ $user = checkRole(['super_admin']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPIB - Administration</title>
-    <link href="/JS/SPIB/public/css/tailwind.min.css" rel="stylesheet">
-    <link href="/JS/SPIB/public/css/style.css" rel="stylesheet">
+    <title>STIB - Administration</title>
+    <link href="/JS/STIB/public/css/tailwind.min.css" rel="stylesheet">
+    <link href="/JS/STIB/public/css/style.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
     <nav class="bg-primary text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
-                <div class="text-xl font-bold">SPIB - Administration</div>
+                <div class="text-xl font-bold">STIB - Administration</div>
                 <div class="hidden md:flex space-x-6">
                     <a href="#" class="hover:text-gray-200" data-page="dashboard">Tableau de bord</a>
                     <a href="#" class="hover:text-gray-200" data-page="users">Utilisateurs</a>
@@ -251,7 +251,7 @@ $user = checkRole(['super_admin']);
         // Statistiques système
         async function loadSystemStats() {
             try {
-                const response = await fetch('/JS/SPIB/api/admin/system-stats');
+                const response = await fetch('/JS/STIB/api/admin/system-stats');
                 const data = await response.json();
                 
                 document.getElementById('systemStats').innerHTML = `
@@ -280,7 +280,7 @@ $user = checkRole(['super_admin']);
         // Maintenance système
         async function clearCache() {
             try {
-                const response = await fetch('/JS/SPIB/api/admin/clear-cache', {
+                const response = await fetch('/JS/STIB/api/admin/clear-cache', {
                     method: 'POST'
                 });
                 const data = await response.json();
@@ -298,7 +298,7 @@ $user = checkRole(['super_admin']);
 
         async function backupDatabase() {
             try {
-                const response = await fetch('/JS/SPIB/api/admin/backup-db', {
+                const response = await fetch('/JS/STIB/api/admin/backup-db', {
                     method: 'POST'
                 });
                 const data = await response.json();
@@ -317,7 +317,7 @@ $user = checkRole(['super_admin']);
         // Gestion des utilisateurs
         async function loadUsers() {
             try {
-                const response = await fetch('/JS/SPIB/api/admin/users');
+                const response = await fetch('/JS/STIB/api/admin/users');
                 const users = await response.json();
                 
                 document.getElementById('usersList').innerHTML = users.map(user => `
@@ -353,8 +353,8 @@ $user = checkRole(['super_admin']);
         // Déconnexion
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try {
-                await fetch('/JS/SPIB/api/auth/logout', { method: 'POST' });
-                window.location.href = '/JS/SPIB/public/login.php';
+                await fetch('/JS/STIB/api/auth/logout', { method: 'POST' });
+                window.location.href = '/JS/STIB/public/login.php';
             } catch (error) {
                 console.error('Erreur de déconnexion:', error);
             }

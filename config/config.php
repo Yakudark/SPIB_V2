@@ -1,5 +1,5 @@
 <?php
-define('BASE_URL', 'http://localhost/JS/SPIB');
+define('BASE_URL', 'http://localhost/JS/STIB');
 define('API_URL', BASE_URL . '/api');
 
 // Configuration de l'environnement

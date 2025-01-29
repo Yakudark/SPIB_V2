@@ -1,7 +1,7 @@
 <?php
 $config = [
     'host' => 'localhost',
-    'dbname' => 'spib_gestion',
+    'dbname' => 'stib_gestion',
     'username' => 'root',
     'password' => 'root'
 ];

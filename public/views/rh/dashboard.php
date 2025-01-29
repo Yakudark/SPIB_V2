@@ -7,15 +7,15 @@ $user = checkRole(['RH']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPIB - Espace RH</title>
-    <link href="/JS/SPIB/public/css/tailwind.min.css" rel="stylesheet">
-    <link href="/JS/SPIB/public/css/style.css" rel="stylesheet">
+    <title>STIB - Espace RH</title>
+    <link href="/JS/STIB/public/css/tailwind.min.css" rel="stylesheet">
+    <link href="/JS/STIB/public/css/style.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
     <nav class="bg-primary text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
-                <div class="text-xl font-bold">SPIB - Ressources Humaines</div>
+                <div class="text-xl font-bold">STIB - Ressources Humaines</div>
                 <div class="hidden md:flex space-x-6">
                     <a href="#" class="hover:text-gray-200" data-page="overview">Vue d'ensemble</a>
                     <a href="#" class="hover:text-gray-200" data-page="services">Services</a>
@@ -179,7 +179,7 @@ $user = checkRole(['RH']);
         // Chargement des statistiques globales
         async function loadGlobalStats() {
             try {
-                const response = await fetch('/JS/SPIB/api/statistics/global');
+                const response = await fetch('/JS/STIB/api/statistics/global');
                 const data = await response.json();
                 
                 document.getElementById('globalStats').innerHTML = `
@@ -208,7 +208,7 @@ $user = checkRole(['RH']);
         // Gestion des services
         async function loadServices() {
             try {
-                const response = await fetch('/JS/SPIB/api/services');
+                const response = await fetch('/JS/STIB/api/services');
                 const services = await response.json();
                 
                 document.getElementById('servicesList').innerHTML = services.map(service => `
@@ -236,7 +236,7 @@ $user = checkRole(['RH']);
         // Gestion des employés
         async function loadEmployees() {
             try {
-                const response = await fetch('/JS/SPIB/api/users');
+                const response = await fetch('/JS/STIB/api/users');
                 const employees = await response.json();
                 
                 document.getElementById('employeesList').innerHTML = employees.map(employee => `
@@ -266,8 +266,8 @@ $user = checkRole(['RH']);
         // Déconnexion
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try {
-                await fetch('/JS/SPIB/api/auth/logout', { method: 'POST' });
-                window.location.href = '/JS/SPIB/public/login.php';
+                await fetch('/JS/STIB/api/auth/logout', { method: 'POST' });
+                window.location.href = '/JS/STIB/public/login.php';
             } catch (error) {
                 console.error('Erreur de déconnexion:', error);
             }

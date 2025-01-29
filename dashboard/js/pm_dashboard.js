@@ -11,7 +11,7 @@ function closeAbsenceModal() {
 
 async function loadAgentsForAbsence() {
     try {
-        const response = await fetch('/JS/SPIB/api/pm/agents.php');
+        const response = await fetch('/JS/STIB/api/pm/agents.php');
         const agents = await response.json();
         
         const select = document.getElementById('absenceAgent');
@@ -40,7 +40,7 @@ function closeActionModal() {
 }
 
 function loadActionTypes() {
-    fetch('/JS/SPIB/api/pm/action_types.php')
+    fetch('/JS/STIB/api/pm/action_types.php')
         .then(response => response.json())
         .then(data => {
             const select = document.querySelector('select[name="action_type"]');
@@ -56,7 +56,7 @@ function loadActionTypes() {
 }
 
 function loadAgentsForModal() {
-    fetch('/JS/SPIB/api/pm/agents.php')
+    fetch('/JS/STIB/api/pm/agents.php')
         .then(response => response.json())
         .then(agents => {
             const select = document.querySelector('select[name="agent_id"]');
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             try {
-                const response = await fetch('/JS/SPIB/api/pm/create_action.php', {
+                const response = await fetch('/JS/STIB/api/pm/create_action.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadAgents() {
-    fetch('/JS/SPIB/api/pm/agents.php')
+    fetch('/JS/STIB/api/pm/agents.php')
         .then(response => response.json())
         .then(agents => {
             // Remplir le sélecteur pour les actions
@@ -142,8 +142,8 @@ function loadAgents() {
 function loadActions() {
     const selectedAgent = document.getElementById('selectedAgent').value;
     const url = selectedAgent 
-        ? `/JS/SPIB/api/pm/actions.php?agent_id=${selectedAgent}`
-        : '/JS/SPIB/api/pm/actions.php';
+        ? `/JS/STIB/api/pm/actions.php?agent_id=${selectedAgent}`
+        : '/JS/STIB/api/pm/actions.php';
 
     fetch(url)
         .then(response => response.json())
@@ -194,7 +194,7 @@ function loadActions() {
 
 function loadDashboardData() {
     // Charger le nombre d'agents et les informations du PM
-    fetch('/JS/SPIB/api/pm/dashboard_info.php')
+    fetch('/JS/STIB/api/pm/dashboard_info.php')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -210,7 +210,7 @@ function loadDashboardData() {
 function loadConges() {
     const selectedAgent = document.getElementById('selectedAgentVacation').value;
     const statusFilter = document.getElementById('statusFilter').value;
-    let url = '/JS/SPIB/api/pm/conges.php';
+    let url = '/JS/STIB/api/pm/conges.php';
     
     // Ajout des paramètres à l'URL
     const params = new URLSearchParams();
@@ -266,7 +266,7 @@ async function markActionComplete(id) {
     }
 
     try {
-        const response = await fetch('/JS/SPIB/api/pm/update_action.php', {
+        const response = await fetch('/JS/STIB/api/pm/update_action.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -295,7 +295,7 @@ async function deleteAction(id) {
     }
 
     try {
-        const response = await fetch('/JS/SPIB/api/pm/delete_action.php', {
+        const response = await fetch('/JS/STIB/api/pm/delete_action.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -318,7 +318,7 @@ async function deleteAction(id) {
 // Gestion des absences
 async function loadAbsences() {
     try {
-        const response = await fetch('/JS/SPIB/api/pm/absences.php');
+        const response = await fetch('/JS/STIB/api/pm/absences.php');
         const data = await response.json();
         
         if (data.success) {
@@ -372,7 +372,7 @@ async function submitAbsence(event) {
         if (!confirm("Aucune date de fin n'a été spécifiée. Voulez-vous en ajouter une ?")) {
             // Si non, continuer avec la date par défaut (31/12/2999)
             try {
-                const response = await fetch('/JS/SPIB/api/pm/absences.php', {
+                const response = await fetch('/JS/STIB/api/pm/absences.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -401,7 +401,7 @@ async function submitAbsence(event) {
 
     // Si une date de fin est spécifiée
     try {
-        const response = await fetch('/JS/SPIB/api/pm/absences.php', {
+        const response = await fetch('/JS/STIB/api/pm/absences.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -429,7 +429,7 @@ async function submitAbsence(event) {
 async function deleteAbsence(id) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette absence ?')) {
         try {
-            const response = await fetch('/JS/SPIB/api/pm/absences.php', {
+            const response = await fetch('/JS/STIB/api/pm/absences.php', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

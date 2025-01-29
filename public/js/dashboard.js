@@ -20,7 +20,7 @@ function updateStats(data) {
 // Fonction pour charger les statistiques
 async function loadDashboardStats() {
     try {
-        const response = await fetch('/JS/SPIB/api/employee/absences_stats.php', {
+        const response = await fetch('/JS/STIB/api/employee/absences_stats.php', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

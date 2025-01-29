@@ -5,19 +5,19 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
     switch ($role) {
         case 'SALARIÉ':
         case 'SALARIE':
-            header('Location: /JS/SPIB/dashboard/employee.php');
+            header('Location: /JS/STIB/dashboard/employee.php');
             break;
         case 'MANAGER':
-            header('Location: /JS/SPIB/dashboard/manager.php');
+            header('Location: /JS/STIB/dashboard/manager.php');
             break;
         case 'ADMIN':
-            header('Location: /JS/SPIB/dashboard/admin.php');
+            header('Location: /JS/STIB/dashboard/admin.php');
             break;
         case 'PM':
-            header('Location: /JS/SPIB/dashboard/pm.php');
+            header('Location: /JS/STIB/dashboard/pm.php');
             break;
         case 'EM':
-            header('Location: /JS/SPIB/dashboard/em.php');
+            header('Location: /JS/STIB/dashboard/em.php');
             break;
         default:
             // Si le rôle n'est pas reconnu, déconnecter l'utilisateur
@@ -32,7 +32,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPIB - Connexion</title>
+    <title>STIB - Connexion</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -42,9 +42,9 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
         <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
             <!-- Logo et Titre -->
             <div class="text-center">
-                <img class="mx-auto h-16 w-auto" src="/JS/SPIB/public/assets/img/logo.png" alt="SPIB Logo">
+                <img class="mx-auto h-16 w-auto" src="/JS/STIB/public/assets/img/logo.png" alt="STIB Logo">
                 <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
-                    Bienvenue sur SPIB
+                    Bienvenue sur STIB
                 </h2>
                 <p class="mt-2 text-sm text-gray-600">
                     Connectez-vous à votre espace
@@ -108,7 +108,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
             <!-- Footer -->
             <div class="mt-6">
                 <p class="text-center text-sm text-gray-600">
-                    2025 SPIB. Tous droits réservés.
+                    2025 STIB. Tous droits réservés.
                 </p>
             </div>
         </div>
@@ -122,7 +122,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
             const password = document.getElementById('password').value;
             
             try {
-                const response = await fetch('/JS/SPIB/api/auth/login.php', {
+                const response = await fetch('/JS/STIB/api/auth/login.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -152,13 +152,13 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
                         const role = data.user.role;  
                         console.log('Rôle détecté:', role);
                         
-                        if (role === 'SuperAdmin') {
+                        if (role.toLowerCase() === 'superadmin') {
                             console.log('Redirection vers admin dashboard...');
-                            location.replace('/JS/SPIB/dashboard/admin.php');
-                        } else if (role === 'Salarie' || role === 'Salarié') {
-                            location.replace('/JS/SPIB/dashboard/employee.php');
-                        } else if (role === 'PM') {
-                            location.replace('/JS/SPIB/dashboard/pm.php');
+                            location.replace('/JS/STIB/dashboard/admin.php');
+                        } else if (role.toLowerCase() === 'salarié' || role.toLowerCase() === 'salarie') {
+                            location.replace('/JS/STIB/dashboard/employee.php');
+                        } else if (role.toLowerCase() === 'pm') {
+                            location.replace('/JS/STIB/dashboard/pm.php');
                         } else {
                             console.error('Rôle non reconnu:', role);
                             Swal.fire({

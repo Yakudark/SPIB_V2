@@ -4,7 +4,7 @@ require_once '../config/database.php';
 
 // Vérification supplémentaire du rôle
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'EM') {
-    header('Location: /JS/SPIB/public/views/login.php');
+    header('Location: /JS/STIB/public/views/login.php');
     exit;
 }
 
@@ -17,7 +17,7 @@ $pdo = $database->getConnection();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard EM - SPIB</title>
+    <title>Dashboard EM - STIB</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
@@ -192,7 +192,7 @@ $pdo = $database->getConnection();
         }
 
         function loadActionTypes() {
-            fetch('/JS/SPIB/api/em/action_types.php')
+            fetch('/JS/STIB/api/em/action_types.php')
                 .then(response => response.json())
                 .then(data => {
                     const select = document.querySelector('select[name="action_type"]');
@@ -208,7 +208,7 @@ $pdo = $database->getConnection();
         }
 
         function loadAgentsForModal() {
-            fetch('/JS/SPIB/api/em/agents.php')
+            fetch('/JS/STIB/api/em/agents.php')
                 .then(response => response.json())
                 .then(result => {
                     if (result.success) {
@@ -229,7 +229,7 @@ $pdo = $database->getConnection();
 
         // Fonction pour charger les agents dans le sélecteur principal
         function loadAgents() {
-            fetch('/JS/SPIB/api/em/agents.php')
+            fetch('/JS/STIB/api/em/agents.php')
                 .then(response => response.json())
                 .then(result => {
                     if (result.success) {
@@ -259,7 +259,7 @@ $pdo = $database->getConnection();
         function loadActions() {
     const selectedPool = document.getElementById('selectedPool').value;
     const selectedAgent = document.getElementById('selectedAgent').value;
-    let url = '/JS/SPIB/api/em/actions.php';
+    let url = '/JS/STIB/api/em/actions.php';
     
     const params = new URLSearchParams();
     if (selectedPool) params.append('pool', selectedPool);
@@ -323,7 +323,7 @@ $pdo = $database->getConnection();
             if (selectedAgent) params.append('agent_id', selectedAgent);
             if (statusFilter) params.append('status', statusFilter);
             
-            let url = '/JS/SPIB/api/em/conges.php';
+            let url = '/JS/STIB/api/em/conges.php';
             if (params.toString()) {
                 url += '?' + params.toString();
             }
@@ -385,7 +385,7 @@ $pdo = $database->getConnection();
         function updateCongeStatus(congeId, newStatus) {
             console.log('Mise à jour du congé:', congeId, 'avec le statut:', newStatus);
             
-            fetch('/JS/SPIB/api/em/update_conge.php', {
+            fetch('/JS/STIB/api/em/update_conge.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -443,7 +443,7 @@ $pdo = $database->getConnection();
                 commentaire: formData.get('commentaire')
             };
 
-            fetch('/JS/SPIB/api/em/create_action.php', {
+            fetch('/JS/STIB/api/em/create_action.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -479,7 +479,7 @@ $pdo = $database->getConnection();
         });
         // Fonction pour charger les pools
 function loadPools() {
-    fetch('/JS/SPIB/api/em/pools.php')
+    fetch('/JS/STIB/api/em/pools.php')
         .then(response => response.json())
         .then(result => {
             if (result.success) {
@@ -508,7 +508,7 @@ function loadPools() {
 // Fonction pour charger les agents en fonction du pool sélectionné
 function loadAgentsByPool(poolSelect, agentSelect) {
     const selectedPool = poolSelect.value;
-    let url = '/JS/SPIB/api/em/agents.php';
+    let url = '/JS/STIB/api/em/agents.php';
     
     if (selectedPool) {
         url += `?pool=${encodeURIComponent(selectedPool)}`;

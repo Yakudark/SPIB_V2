@@ -7,7 +7,7 @@ $user = checkRole(['salarié']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPIB - Espace Employé</title>
+    <title>STIB - Espace Employé</title>
     <link href="/public/css/tailwind.min.css" rel="stylesheet">
     <link href="/public/css/style.css" rel="stylesheet">
     <!-- Ajouter SweetAlert2 -->
@@ -17,7 +17,7 @@ $user = checkRole(['salarié']);
     <nav class="bg-primary text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
-                <div class="text-xl font-bold">SPIB</div>
+                <div class="text-xl font-bold">STIB</div>
                 <div class="flex items-center space-x-4">
                     <span class="text-sm">
                         <?php echo htmlspecialchars($user['prenom'] . ' ' . $user['nom']); ?>

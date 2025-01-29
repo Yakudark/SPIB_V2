@@ -1,6 +1,6 @@
 -- Création de la base de données
-CREATE DATABASE IF NOT EXISTS spib_gestion CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE spib_gestion;
+CREATE DATABASE IF NOT EXISTS stib_gestion CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE stib_gestion;
 
 -- Table : Services
 CREATE TABLE services (

@@ -1,4 +1,4 @@
-class SPIB {
+class STIB {
     constructor() {
         this.currentUser = null;
         this.initializeNavigation();
@@ -256,5 +256,5 @@ class SPIB {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new SPIB();
+    window.app = new STIB();
 });
