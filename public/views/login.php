@@ -42,7 +42,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
         <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
             <!-- Logo et Titre -->
             <div class="text-center">
-                <img class="mx-auto h-16 w-auto" src="/JS/STIB/public/assets/img/logo.png" alt="STIB Logo">
+                <img class="mx-auto h-16 w-auto" src="/JS/STIB/public/assets/STIB_logo.png" alt="STIB Logo">
                 <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
                     Bienvenue sur STIB
                 </h2>

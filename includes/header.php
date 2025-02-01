@@ -7,6 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-4">
             <div class="flex items-center">
+                <img src="/JS/STIB/public/assets/STIB_logo.png" alt="STIB Logo" class="h-30 w-auto mr-4">
                 <h1 class="text-xl font-bold text-gray-800">STIB</h1>
                 <nav class="ml-8">
                     <ul class="flex space-x-6">

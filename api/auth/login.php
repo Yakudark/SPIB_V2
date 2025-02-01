@@ -5,9 +5,7 @@ header('Content-Type: application/json');
 require_once '../../config/database.php';
 
 try {
-    // Récupérer les données POST
     $data = json_decode(file_get_contents('php://input'), true);
-    
     $matricule = $data['matricule'] ?? '';
     $password = $data['password'] ?? '';
 
@@ -16,51 +14,51 @@ try {
         exit;
     }
 
-    // Connexion à la base de données
     $database = new Database();
     $pdo = $database->getConnection();
 
-    // Vérifier les identifiants
-    $query = "SELECT u.*, c.password, c.matricule as login_matricule
+    // Requête pour vérifier les identifiants et récupérer les infos du PM
+    $query = "SELECT u.*, 
+              pm.nom as pm_nom, 
+              pm.prenom as pm_prenom 
               FROM utilisateurs u 
-              INNER JOIN connexions c ON u.id = c.utilisateur_id 
-              WHERE c.matricule = :matricule";
-    
+              LEFT JOIN utilisateurs pm ON u.pm_id = pm.id 
+              WHERE u.matricule = :matricule 
+              LIMIT 1";
+
     $stmt = $pdo->prepare($query);
     $stmt->execute(['matricule' => $matricule]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && $password === $user['password']) {  // Comparaison directe car les mots de passe sont en texte brut
-        // Connexion réussie
+    if ($user && $password === $user['password']) {
+        // Mise à jour de la dernière connexion
+        $updateQuery = "UPDATE utilisateurs SET derniere_connexion = NOW() WHERE id = :id";
+        $stmt = $pdo->prepare($updateQuery);
+        $stmt->execute(['id' => $user['id']]);
+
         $_SESSION['user_id'] = $user['id'];
-        $_SESSION['matricule'] = $user['login_matricule'];
+        $_SESSION['matricule'] = $user['matricule'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['nom'] = $user['nom'];
         $_SESSION['prenom'] = $user['prenom'];
-
-        // Mettre à jour la dernière connexion
-        $updateQuery = "UPDATE connexions SET derniere_connexion = NOW() WHERE utilisateur_id = :user_id";
-        $updateStmt = $pdo->prepare($updateQuery);
-        $updateStmt->execute(['user_id' => $user['id']]);
+        $_SESSION['pool'] = $user['pool'];
+        $_SESSION['pm_id'] = $user['pm_id'];
+        $_SESSION['pm_nom'] = $user['pm_nom'];
+        $_SESSION['pm_prenom'] = $user['pm_prenom'];
 
         echo json_encode([
             'success' => true,
             'message' => 'Connexion réussie',
             'user' => [
                 'id' => $user['id'],
-                'matricule' => $user['login_matricule'],
-                'role' => $user['role'],
-                'nom' => $user['nom'],
-                'prenom' => $user['prenom']
+                'matricule' => $user['matricule'],
+                'role' => $user['role']
             ]
         ]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Matricule ou mot de passe incorrect']);
+        echo json_encode(['success' => false, 'message' => 'Identifiants incorrects']);
     }
-
 } catch (Exception $e) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Erreur lors de la connexion: ' . $e->getMessage()
-    ]);
+    error_log($e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Erreur lors de la connexion']);
 }

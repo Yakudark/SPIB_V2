@@ -36,12 +36,12 @@ if ($_SESSION['role'] !== 'salarié') {
             <div>
                 <div class="text-lg font-bold text-center"><?php echo htmlspecialchars($_SESSION['prenom'] . ' ' . $_SESSION['nom']); ?></div>
                 <div class="text-gray-600 text-center"><?php echo htmlspecialchars($_SESSION['matricule']); ?></div>
-                <div class="text-gray-600 text-center">Pool Delta 1-2</div>
+                <div class="text-gray-600 text-center"><?php echo isset($_SESSION['pool']) ? htmlspecialchars($_SESSION['pool']) : 'Non assigné'; ?></div>
             </div>
             
             <div>
                 <div class="text-gray-600 text-center">Manager</div>
-                <div class="font-medium text-center">Appana Devadas</div>
+                <div class="font-medium text-center"><?php echo isset($_SESSION['pm_nom'], $_SESSION['pm_prenom']) ? htmlspecialchars($_SESSION['pm_prenom'] . ' ' . $_SESSION['pm_nom']) : 'Non assigné'; ?></div>
             </div>
 
             <!-- Statistiques -->

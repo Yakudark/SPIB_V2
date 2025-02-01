@@ -19,7 +19,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
     <div class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg">
         <div class="p-4">
             <div class="flex items-center justify-center mb-8">
-                <img src="/JS/STIB/public/assets/img/logo.png" alt="STIB Logo" class="h-12">
+                <img src="/JS/STIB/public/assets/STIB_logo.png
+                " alt="STIB Logo" class="h-12">
             </div>
             <nav class="space-y-2">
                 <a href="#" class="flex items-center p-3 text-gray-900 rounded-lg bg-blue-100">

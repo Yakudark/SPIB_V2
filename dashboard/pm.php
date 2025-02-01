@@ -4,6 +4,36 @@ require_once '../config/database.php';
 
 $database = new Database();
 $pdo = $database->getConnection();
+
+// Debug des informations de session
+error_log("=== Debug Session ===");
+error_log("Session ID: " . session_id());
+error_log("User ID: " . (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'Non défini'));
+error_log("Role: " . (isset($_SESSION['role']) ? $_SESSION['role'] : 'Non défini'));
+error_log("Matricule: " . (isset($_SESSION['matricule']) ? $_SESSION['matricule'] : 'Non défini'));
+
+// Récupérer la liste des salariés qui dépendent de ce PM
+$query = "SELECT id, nom, prenom, matricule FROM utilisateurs WHERE pm_id = :pm_id AND role = 'salarié' ORDER BY nom, prenom";
+$stmt = $pdo->prepare($query);
+$stmt->execute(['pm_id' => $_SESSION['user_id']]);
+$salaries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Debug de la requête
+error_log("=== Debug Requête ===");
+error_log("Requête SQL: " . $query);
+error_log("PM ID utilisé: " . $_SESSION['user_id']);
+error_log("Nombre de salariés trouvés: " . count($salaries));
+
+// Vérifier tous les salariés qui ont un PM
+$query_check = "SELECT u.*, p.matricule as pm_matricule FROM utilisateurs u LEFT JOIN utilisateurs p ON u.pm_id = p.id WHERE u.role = 'salarié'";
+$stmt_check = $pdo->prepare($query_check);
+$stmt_check->execute();
+$all_salaries = $stmt_check->fetchAll(PDO::FETCH_ASSOC);
+error_log("=== Debug Tous les Salariés ===");
+error_log("Nombre total de salariés: " . count($all_salaries));
+foreach ($all_salaries as $s) {
+    error_log("Salarié: {$s['matricule']} - PM ID: {$s['pm_id']} - PM Matricule: {$s['pm_matricule']}");
+}
 ?>
 
 <!DOCTYPE html>
@@ -26,6 +56,8 @@ $pdo = $database->getConnection();
             <div>
                 <div class="font-bold"><?php echo htmlspecialchars($_SESSION['prenom'] . ' ' . $_SESSION['nom']); ?></div>
                 <div class="text-sm text-gray-600">Manager</div>
+                <div class="text-gray-600 text-center"><?php echo isset($_SESSION['pool']) ? htmlspecialchars($_SESSION['pool']) : 'Non assigné'; ?></div>
+
             </div>
         </div>
 
@@ -49,7 +81,6 @@ $pdo = $database->getConnection();
             <div class="bg-gray-50 p-4 rounded-lg">
                 <div class="text-gray-600 text-center">Agents suivis</div>
                 <div class="text-3xl font-bold text-purple-600 text-center" id="agents-count">0</div>
-                <div class="text-sm text-gray-500 text-center" id="pool-name">Pool: Chargement...</div>
             </div>
         </div>
 
@@ -78,6 +109,11 @@ $pdo = $database->getConnection();
                         <h2 class="text-xl font-bold text-gray-800">Actions à suivre</h2>
                         <select id="selectedAgent" class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                             <option value="">Tous les salariés</option>
+                            <?php foreach ($salaries as $salarie): ?>
+                                <option value="<?php echo $salarie['id']; ?>">
+                                    <?php echo htmlspecialchars($salarie['nom'] . ' ' . $salarie['prenom'] . ' (' . $salarie['matricule'] . ')'); ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
@@ -168,8 +204,77 @@ $pdo = $database->getConnection();
     <?php include 'modals/absence_modal.php'; ?>
 
     <script>
-        // Le reste du JavaScript reste inchangé
         <?php include 'js/pm_dashboard.js'; ?>
+
+        const agents = <?php echo json_encode($salaries); ?>;
+        
+        function loadAgentsInSelect(selectElement, includeDefaultOption = true, defaultText = 'Tous les salariés') {
+            if (selectElement) {
+                selectElement.innerHTML = '';
+                
+                if (includeDefaultOption) {
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = defaultText;
+                    selectElement.appendChild(defaultOption);
+                }
+                
+                if (agents && Array.isArray(agents)) {
+                    agents.forEach(agent => {
+                        const option = document.createElement('option');
+                        option.value = agent.id;
+                        option.textContent = `${agent.nom} ${agent.prenom} (${agent.matricule})`;
+                        selectElement.appendChild(option);
+                    });
+                }
+            }
+        }
+
+        const originalLoadAgents = loadAgents;
+        loadAgents = function() {
+            const selectActions = document.getElementById('selectedAgent');
+            if (selectActions) {
+                loadAgentsInSelect(selectActions);
+            }
+            
+            const selectVacations = document.getElementById('selectedAgentVacation');
+            if (selectVacations) {
+                loadAgentsInSelect(selectVacations);
+            }
+
+            const agentsCount = document.getElementById('agents-count');
+            if (agentsCount && agents && Array.isArray(agents)) {
+                agentsCount.textContent = agents.length;
+            }
+        };
+
+        const originalLoadAgentsForAbsence = loadAgentsForAbsence;
+        loadAgentsForAbsence = function() {
+            const select = document.getElementById('absenceAgent');
+            if (select) {
+                loadAgentsInSelect(select, true, 'Sélectionner un agent');
+            }
+        };
+
+        const originalLoadAgentsForModal = loadAgentsForModal;
+        loadAgentsForModal = function() {
+            const select = document.querySelector('select[name="agent_id"]');
+            if (select) {
+                loadAgentsInSelect(select, true, 'Sélectionner un agent');
+            }
+        };
+
+        document.removeEventListener('DOMContentLoaded', originalLoadAgents);
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                loadAgents();
+                loadActions();
+                loadConges();
+                loadAbsences();
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+            }
+        });
     </script>
 </body>
 </html>
