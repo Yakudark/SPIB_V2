@@ -26,27 +26,9 @@ if (window.location.pathname.includes('/public/views/login.php')) {
                 });
                 const data = await response.json();
                 
-                if (response.ok && data.success) {
-                    // Rediriger selon le rôle
-                    const role = data.role.toUpperCase(); // Convertir en majuscules pour la comparaison
-                    switch(role) {
-                        case 'SALARIÉ':
-                        case 'SALARIE':
-                            window.location.href = '/JS/STIB/dashboard/employee.php';
-                            break;
-                        case 'MANAGER':
-                            window.location.href = '/JS/STIB/dashboard/manager.php';
-                            break;
-                        case 'ADMIN':
-                            window.location.href = '/JS/STIB/dashboard/admin.php';
-                            break;
-                        case 'PM':
-                            window.location.href = '/JS/STIB/dashboard/pm.php';
-                            break;
-                        default:
-                            console.error('Rôle non reconnu:', role);
-                            alert('Erreur de redirection: rôle non reconnu');
-                    }
+                if (response.ok && data.success && data.redirect) {
+                    // Utiliser l'URL de redirection fournie par le serveur
+                    window.location.href = data.redirect;
                     return;
                 }
             } catch (error) {
@@ -79,30 +61,16 @@ if (window.location.pathname.includes('/public/views/login.php')) {
                 const result = await response.json();
                 
                 if (result.success) {
-                    localStorage.setItem('token', result.token);
+                    if (result.token) {
+                        localStorage.setItem('token', result.token);
+                    }
                     
-                    // Rediriger selon le rôle
-                    console.log('Role:', result.user.role); // Debug
-                    
-                    const role = result.user.role.toUpperCase(); // Convertir en majuscules pour la comparaison
-                    
-                    switch(role) {
-                        case 'SALARIÉ':
-                        case 'SALARIE':
-                            window.location.href = '/JS/STIB/dashboard/employee.php';
-                            break;
-                        case 'MANAGER':
-                            window.location.href = '/JS/STIB/dashboard/manager.php';
-                            break;
-                        case 'ADMIN':
-                            window.location.href = '/JS/STIB/dashboard/admin.php';
-                            break;
-                        case 'PM':
-                            window.location.href = '/JS/STIB/dashboard/pm.php';
-                            break;
-                        default:
-                            console.error('Rôle non reconnu:', role);
-                            alert('Erreur de redirection: rôle non reconnu');
+                    // Utiliser l'URL de redirection fournie par le serveur
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                    } else {
+                        console.error('Pas d\'URL de redirection fournie');
+                        alert('Erreur de redirection: URL manquante');
                     }
                 } else {
                     // Afficher le message d'erreur

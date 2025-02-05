@@ -36,7 +36,7 @@
         const user = localStorage.getItem('user');
         if (user) {
             const userData = JSON.parse(user);
-            window.location.href = getRedirectUrl(userData.role);
+            window.location.href = userData.redirect;
         }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -59,40 +59,21 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Stocker le token et les informations de l'utilisateur
-                    localStorage.setItem('token', data.token);
+                    // Stocker les informations de l'utilisateur
                     localStorage.setItem('user', JSON.stringify(data.user));
-                    // Redirection selon le rôle
-                    window.location.href = getRedirectUrl(data.user.role);
+                    
+                    // Redirection vers l'URL fournie par le serveur
+                    window.location.href = data.redirect;
                 } else {
                     errorMessage.textContent = data.message || 'Identifiants invalides';
                     errorMessage.classList.remove('hidden');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                errorMessage.textContent = 'Erreur de connexion au serveur';
+                errorMessage.textContent = 'Une erreur est survenue lors de la connexion';
                 errorMessage.classList.remove('hidden');
             }
         });
-
-        function getRedirectUrl(role) {
-            switch (role.toLowerCase()) {
-                case 'superadmin':
-                    return '../dashboard/admin.php';
-                case 'rh':
-                    return '../dashboard/rh.php';
-                case 'dm':
-                    return '../dashboard/manager.php';
-                case 'em':
-                    return '../dashboard/manager.php';
-                case 'pm':
-                    return '../dashboard/manager.php';
-                case 'salarié':
-                    return '../dashboard/employee.php';
-                default:
-                    return 'login.php';
-            }
-        }
     </script>
 </body>
 </html>

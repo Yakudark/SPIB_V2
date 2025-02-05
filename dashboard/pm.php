@@ -56,8 +56,7 @@ foreach ($all_salaries as $s) {
             <div>
                 <div class="font-bold"><?php echo htmlspecialchars($_SESSION['prenom'] . ' ' . $_SESSION['nom']); ?></div>
                 <div class="text-sm text-gray-600">Manager</div>
-                <div class="text-gray-600 text-center"><?php echo isset($_SESSION['pool']) ? htmlspecialchars($_SESSION['pool']) : 'Non assigné'; ?></div>
-
+                <div class="text-sm text-gray-500"><?php echo isset($_SESSION['pool']) ? htmlspecialchars($_SESSION['pool']) : 'Non assigné'; ?></div>
             </div>
         </div>
 
@@ -81,6 +80,7 @@ foreach ($all_salaries as $s) {
             <div class="bg-gray-50 p-4 rounded-lg">
                 <div class="text-gray-600 text-center">Agents suivis</div>
                 <div class="text-3xl font-bold text-purple-600 text-center" id="agents-count">0</div>
+                
             </div>
         </div>
 

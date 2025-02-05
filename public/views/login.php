@@ -1,29 +1,9 @@
 <?php
 session_start();
+
+// Si l'utilisateur est déjà connecté, on utilise la redirection du serveur
 if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
-    $role = strtoupper($_SESSION['role']);
-    switch ($role) {
-        case 'SALARIÉ':
-        case 'SALARIE':
-            header('Location: /JS/STIB/dashboard/employee.php');
-            break;
-        case 'MANAGER':
-            header('Location: /JS/STIB/dashboard/manager.php');
-            break;
-        case 'ADMIN':
-            header('Location: /JS/STIB/dashboard/admin.php');
-            break;
-        case 'PM':
-            header('Location: /JS/STIB/dashboard/pm.php');
-            break;
-        case 'EM':
-            header('Location: /JS/STIB/dashboard/em.php');
-            break;
-        default:
-            // Si le rôle n'est pas reconnu, déconnecter l'utilisateur
-            session_destroy();
-            break;
-    }
+    header('Location: /JS/STIB/api/auth/check_session.php');
     exit;
 }
 ?>
@@ -133,61 +113,32 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
                     })
                 });
                 
-                const data = await response.json();
-                console.log('Response complète:', data);
+                const result = await response.json();
                 
-                if (data.success) {
-                    console.log('Utilisateur:', data.user);
-                    console.log('Rôle:', data.user.role);
-                    
+                if (result.success) {
+                    // Afficher le message de succès
                     await Swal.fire({
                         icon: 'success',
                         title: 'Connexion réussie !',
                         text: 'Redirection en cours...',
-                        timer: 3000,
+                        timer: 1500,
                         showConfirmButton: false
                     });
-
-                    if (data.user && data.user.role) {
-                        const role = data.user.role;  
-                        console.log('Rôle détecté:', role);
-                        
-                        if (role.toLowerCase() === 'superadmin') {
-                            console.log('Redirection vers admin dashboard...');
-                            location.replace('/JS/STIB/dashboard/admin.php');
-                        } else if (role.toLowerCase() === 'salarié' || role.toLowerCase() === 'salarie') {
-                            location.replace('/JS/STIB/dashboard/employee.php');
-                        } else if (role.toLowerCase() === 'pm') {
-                            location.replace('/JS/STIB/dashboard/pm.php');
-                        } else {
-                            console.error('Rôle non reconnu:', role);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erreur de redirection',
-                                text: 'Rôle non reconnu: ' + role,
-                                confirmButtonColor: '#1a365d'
-                            });
-                        }
-                    } else {
-                        console.error('Données utilisateur manquantes:', data);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Erreur de redirection',
-                            text: 'Données utilisateur manquantes',
-                            confirmButtonColor: '#1a365d'
-                        });
-                    }
+                    
+                    // Utiliser l'URL de redirection fournie par le serveur
+                    window.location.href = result.redirect;
                 } else {
-                    Swal.fire({
+                    // Afficher le message d'erreur
+                    await Swal.fire({
                         icon: 'error',
                         title: 'Erreur de connexion',
-                        text: data.message,
+                        text: result.message,
                         confirmButtonColor: '#1a365d'
                     });
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                Swal.fire({
+                await Swal.fire({
                     icon: 'error',
                     title: 'Erreur de connexion',
                     text: 'Une erreur est survenue lors de la connexion',

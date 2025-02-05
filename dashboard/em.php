@@ -3,8 +3,8 @@ require_once '../includes/auth_check.php';
 require_once '../config/database.php';
 
 // Vérification supplémentaire du rôle
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'EM') {
-    header('Location: /JS/STIB/public/views/login.php');
+if (!isset($_SESSION['role']) || strtoupper(trim($_SESSION['role'])) !== 'EM') {
+    header('Location: ../public/login.php');
     exit;
 }
 
