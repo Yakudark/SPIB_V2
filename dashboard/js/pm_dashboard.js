@@ -343,6 +343,10 @@ async function loadAbsences() {
                         ${absence.nombre_jours}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span class="font-medium">${absence.periodes_12_mois}</span>
+                        <span class="text-xs text-gray-500 ml-1">périodes d'absence sur les 12 derniers mois</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         ${absence.commentaire || ''}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

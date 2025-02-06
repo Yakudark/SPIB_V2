@@ -1,9 +1,33 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
 
-// Si l'utilisateur est déjà connecté, on utilise la redirection du serveur
+// Si l'utilisateur est déjà connecté, redirection directe
 if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
-    header('Location: /JS/STIB/api/auth/check_session.php');
+    $role = strtoupper(trim($_SESSION['role']));
+    
+    switch($role) {
+        case 'EM':
+            header('Location: /JS/STIB/dashboard/em.php');
+            break;
+        case 'PM':
+            header('Location: /JS/STIB/dashboard/pm.php');
+            break;
+        case 'RH':
+            header('Location: /JS/STIB/dashboard/rh.php');
+            break;
+        case 'DM':
+            header('Location: /JS/STIB/dashboard/manager.php');
+            break;
+        case 'SUPERADMIN':
+            header('Location: /JS/STIB/dashboard/admin.php');
+            break;
+        case 'SALARIE':
+        case 'SALARIÉ':
+            header('Location: /JS/STIB/dashboard/employee.php');
+            break;
+    }
     exit;
 }
 ?>

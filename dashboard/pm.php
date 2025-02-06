@@ -102,6 +102,7 @@ foreach ($all_salaries as $s) {
     <div class="ml-60">
         <!-- Contenu -->
         <div class="p-8 space-y-6">
+            <?php include 'sections/entretiens.php'; ?>
             <!-- Section des actions -->
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-6">
@@ -150,6 +151,7 @@ foreach ($all_salaries as $s) {
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date début</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date fin</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre de jours</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Périodes d'absence</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commentaire</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
@@ -271,10 +273,13 @@ foreach ($all_salaries as $s) {
                 loadActions();
                 loadConges();
                 loadAbsences();
+                loadEntretiens(); 
+                loadAgentsForFilter(); 
             } catch (error) {
                 console.error('Erreur lors du chargement des données:', error);
             }
         });
     </script>
+    <script src="/JS/STIB/dashboard/js/pm_entretiens.js"></script>
 </body>
 </html>

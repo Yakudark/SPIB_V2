@@ -64,8 +64,8 @@ if ($_SESSION['role'] !== 'salarié') {
                     <div class="text-3xl font-bold text-blue-600">3</div>
                     <div class="text-sm text-gray-500">En attente</div>
                     <div class="text-sm">
-                        <div class="text-green-600">✓ <span id="demandes-approuvees">1</span></div>
-                        <div class="text-red-600">✗ <span id="demandes-rejetees">1</span></div>
+                        <div class="text-green-600"> <span id="demandes-approuvees">1</span></div>
+                        <div class="text-red-600"> <span id="demandes-rejetees">1</span></div>
                     </div>
                 </div>
             </div>
@@ -113,23 +113,58 @@ if ($_SESSION['role'] !== 'salarié') {
 
         <!-- Contenu -->
         <div class="p-8 space-y-6">
-            <!-- Mes Prochains Entretiens -->
+            <!-- Système d'onglets pour les entretiens -->
             <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-semibold mb-4">Mes Prochains Entretiens</h2>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avec</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commentaire</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="entretiens-table">
-                            <!-- Les données seront insérées ici dynamiquement -->
-                        </tbody>
-                    </table>
+                <div class="border-b border-gray-200 mb-4">
+                    <ul class="flex -mb-px">
+                        <li class="mr-2">
+                            <button onclick="switchTab('upcoming')" class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active" id="upcoming-tab">
+                                Mes Prochains Entretiens
+                            </button>
+                        </li>
+                        <li class="mr-2">
+                            <button onclick="switchTab('history')" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" id="history-tab">
+                                Historique des Entretiens
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contenu des onglets -->
+                <div id="upcoming-content" class="tab-content">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avec</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commentaire</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="upcoming-interviews">
+                                <!-- Les entretiens à venir seront injectés ici -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="history-content" class="tab-content hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avec</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commentaire</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="history-interviews">
+                                <!-- L'historique des entretiens sera injecté ici -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -243,29 +278,61 @@ if ($_SESSION['role'] !== 'salarié') {
             }
         }
 
-        // Fonction pour charger les entretiens
+        // Fonction pour charger les entretiens (à venir et historique)
         async function loadEntretiens() {
             try {
-                const response = await fetch('/JS/STIB/api/employee/entretiens.php');
-                const data = await response.json();
+                // Charger les entretiens à venir
+                const upcomingResponse = await fetch('/JS/STIB/api/employee/entretiens.php?type=upcoming');
+                const upcomingData = await upcomingResponse.json();
                 
-                if (data.success) {
-                    const entretiensTable = document.getElementById('entretiens-table');
-                    entretiensTable.innerHTML = data.entretiens.map(entretien => `
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.date}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.type}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.avec}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.commentaire}</td>
-                        </tr>
-                    `).join('') || `
+                const upcomingTableBody = document.getElementById('upcoming-interviews');
+                upcomingTableBody.innerHTML = '';
+                
+                if (upcomingData.success && upcomingData.entretiens.length > 0) {
+                    upcomingData.entretiens.forEach(entretien => {
+                        upcomingTableBody.innerHTML += `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">${entretien.date}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${entretien.type}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${entretien.avec}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${entretien.commentaire}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    upcomingTableBody.innerHTML = `
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-sm text-gray-500 text-center">
-                                Aucun entretien planifié
-                            </td>
+                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">Aucun entretien à venir</td>
                         </tr>
                     `;
                 }
+
+                // Charger l'historique des entretiens
+                const historyResponse = await fetch('/JS/STIB/api/employee/entretiens.php?type=history');
+                const historyData = await historyResponse.json();
+                
+                const historyTableBody = document.getElementById('history-interviews');
+                historyTableBody.innerHTML = '';
+                
+                if (historyData.success && historyData.entretiens.length > 0) {
+                    historyData.entretiens.forEach(entretien => {
+                        historyTableBody.innerHTML += `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">${entretien.date}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${entretien.type}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${entretien.avec}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${entretien.commentaire}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    historyTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">Aucun entretien dans l'historique</td>
+                        </tr>
+                    `;
+                }
+                
             } catch (error) {
                 console.error('Erreur:', error);
             }
@@ -345,11 +412,11 @@ if ($_SESSION['role'] !== 'salarié') {
                         data.absences.forEach(absence => {
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${absence.date_debut}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${absence.date_fin}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${absence.jours_passes} jours</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${absence.signale_par}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${absence.motif}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${absence.date_debut}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${absence.date_fin}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${absence.jours_passes} jours</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${absence.signale_par}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${absence.motif}</td>
                             `;
                             tbody.appendChild(tr);
                         });
@@ -393,83 +460,17 @@ if ($_SESSION['role'] !== 'salarié') {
             loadAbsences(1);
         });
 
-        // Fonction pour charger les entretiens
-        async function loadEntretiens() {
-            try {
-                const response = await fetch('/JS/STIB/api/employee/entretiens.php');
-                const data = await response.json();
-                
-                if (data.success) {
-                    const entretiensTable = document.getElementById('entretiens-table');
-                    entretiensTable.innerHTML = data.entretiens.map(entretien => `
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.date}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.type}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.avec}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${entretien.commentaire}</td>
-                        </tr>
-                    `).join('') || `
-                        <tr>
-                            <td colspan="4" class="px-6 py-4 text-sm text-gray-500 text-center">
-                                Aucun entretien planifié
-                            </td>
-                        </tr>
-                    `;
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
-        }
-
-        // Fonction pour charger les demandes de congés
-        async function loadVacationRequests() {
-            try {
-                const response = await fetch('/JS/STIB/api/employee/conges.php');
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Mettre à jour le compteur de congés
-                    document.getElementById('conges-count').textContent = data.conges.jours_disponibles;
-                    document.getElementById('conges-en-attente').textContent = `(${data.conges.demandes_en_attente} en attente)`;
-                    
-                    // Mettre à jour les compteurs de demandes
-                    document.getElementById('demandes-approuvees').textContent = data.demandes.demandes_approuvees;
-                    document.getElementById('demandes-rejetees').textContent = data.demandes.demandes_rejetees;
-                    
-                    // Mettre à jour le tableau des demandes
-                    const demandesTable = document.getElementById('demandes-table');
-                    demandesTable.innerHTML = data.demandes.liste.map(demande => `
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.date_demande}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.date_debut}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.date_fin}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.nb_jours}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">Congés</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    ${demande.statut === 'en_attente' ? 'bg-yellow-100 text-yellow-800' : 
-                                    demande.statut === 'approuve' ? 'bg-green-100 text-green-800' : 
-                                    'bg-red-100 text-red-800'}">
-                                    ${demande.statut === 'en_attente' ? 'En attente' : 
-                                      demande.statut === 'approuve' ? 'Approuvé' : 'Refusé'}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <button onclick="showDetails(${demande.id})" class="text-blue-600 hover:text-blue-900">
-                                    <i class="fas fa-info-circle"></i>
-                                </button>
-                                ${demande.statut === 'en_attente' ? `
-                                    <button onclick="deleteRequest(${demande.id})" class="text-red-600 hover:text-red-900 ml-2">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                ` : ''}
-                            </td>
-                        </tr>
-                    `).join('');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
+        // Fonction pour switcher entre les onglets
+        function switchTab(tab) {
+            // Mettre à jour les classes des onglets
+            document.getElementById('upcoming-tab').classList.toggle('text-blue-600', tab === 'upcoming');
+            document.getElementById('upcoming-tab').classList.toggle('border-blue-600', tab === 'upcoming');
+            document.getElementById('history-tab').classList.toggle('text-blue-600', tab === 'history');
+            document.getElementById('history-tab').classList.toggle('border-blue-600', tab === 'history');
+            
+            // Afficher/masquer le contenu approprié
+            document.getElementById('upcoming-content').classList.toggle('hidden', tab !== 'upcoming');
+            document.getElementById('history-content').classList.toggle('hidden', tab !== 'history');
         }
 
         // Fonctions pour le modal

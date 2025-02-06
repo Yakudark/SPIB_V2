@@ -13,6 +13,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'EM') {
 
 try {
     $data = json_decode(file_get_contents('php://input'), true);
+    error_log("Données reçues : " . print_r($data, true));
     
     if (!isset($data['agent_id'], $data['type_action_id'], $data['date_action'])) {
         echo json_encode(['success' => false, 'error' => 'Données manquantes']);
@@ -35,6 +36,7 @@ try {
         INSERT INTO actions (
             agent_id, 
             em_id,
+            pm_id,
             type_action_id, 
             date_action, 
             commentaire,
@@ -42,6 +44,7 @@ try {
         ) VALUES (
             :agent_id,
             :em_id,
+            NULL,
             :type_action_id,
             :date_action,
             :commentaire,
@@ -50,24 +53,31 @@ try {
     ";
     
     $stmt = $pdo->prepare($query);
-    $success = $stmt->execute([
+    $params = [
         'agent_id' => $data['agent_id'],
         'em_id' => $_SESSION['user_id'],
         'type_action_id' => $data['type_action_id'],
         'date_action' => $data['date_action'],
         'commentaire' => $data['commentaire'] ?? null
-    ]);
+    ];
+    error_log("Paramètres de la requête : " . print_r($params, true));
+    
+    $success = $stmt->execute($params);
+    
+    if (!$success) {
+        error_log("Erreur PDO : " . print_r($stmt->errorInfo(), true));
+    }
     
     if ($success) {
         echo json_encode(['success' => true, 'message' => 'Action créée avec succès']);
     } else {
-        echo json_encode(['success' => false, 'error' => 'Erreur lors de la création de l\'action']);
+        echo json_encode(['success' => false, 'error' => 'Erreur lors de la création de l\'action: ' . implode(', ', $stmt->errorInfo())]);
     }
     
 } catch (PDOException $e) {
     error_log("Erreur em/create_action.php: " . $e->getMessage());
     echo json_encode([
         'success' => false, 
-        'error' => 'Erreur lors de la création de l\'action'
+        'error' => 'Erreur lors de la création de l\'action: ' . $e->getMessage()
     ]);
 }

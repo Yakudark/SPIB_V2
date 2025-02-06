@@ -10,6 +10,16 @@ if (!isset($_SESSION['role']) || strtoupper(trim($_SESSION['role'])) !== 'EM') {
 
 $database = new Database();
 $pdo = $database->getConnection();
+
+// Compter le nombre de salariés sous la responsabilité de l'EM
+$query = "SELECT COUNT(*) as nb_salaries 
+          FROM utilisateurs 
+          WHERE em_id = :em_id 
+          AND UPPER(TRIM(role)) IN ('SALARIE', 'SALARIÉ')";
+$stmt = $pdo->prepare($query);
+$stmt->execute(['em_id' => $_SESSION['user_id']]);
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
+$nb_salaries = $result['nb_salaries'];
 ?>
 
 <!DOCTYPE html>
@@ -49,9 +59,9 @@ $pdo = $database->getConnection();
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-700">Agents suivis</h3>
-                        <p class="text-sm text-gray-500" id="pool-name">Pool: Chargement...</p>
+                        <div class="text-sm text-gray-500"><?php echo isset($_SESSION['pool']) ? htmlspecialchars($_SESSION['pool']) : 'Non assigné'; ?></div>
                     </div>
-                    <span class="text-2xl font-bold text-purple-600" id="agents-count">0</span>
+                    <span class="text-2xl font-bold text-purple-600"><?php echo $nb_salaries; ?></span>
                 </div>
                 <p class="text-sm text-gray-600">Nombre total d'agents sous votre responsabilité</p>
             </div>
@@ -84,7 +94,7 @@ $pdo = $database->getConnection();
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Agent</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type d'action</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commentaire</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                         </tr>
                     </thead>
@@ -179,6 +189,50 @@ $pdo = $database->getConnection();
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const actionForm = document.getElementById('actionForm');
+            if (actionForm) {
+                actionForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = {
+                        agent_id: this.agent_id.value,
+                        type_action_id: this.elements['action_type'].value,
+                        date_action: this.date_action.value,
+                        commentaire: this.commentaire.value
+                    };
+
+                    try {
+                        const response = await fetch('/JS/STIB/api/em/create_action.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            closeActionModal();
+                            loadActions();
+                            alert('Action créée avec succès');
+                        } else {
+                            alert(data.error || 'Erreur lors de la création de l\'action');
+                        }
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        alert('Erreur lors de la création de l\'action');
+                    }
+                });
+            }
+
+            // Chargement initial des données
+            loadPools();
+            loadActions();
+            loadConges();
+        });
+
         function openActionModal() {
             document.getElementById('actionModal').classList.remove('hidden');
             // Charger les agents et les types d'actions
@@ -194,15 +248,17 @@ $pdo = $database->getConnection();
         function loadActionTypes() {
             fetch('/JS/STIB/api/em/action_types.php')
                 .then(response => response.json())
-                .then(data => {
-                    const select = document.querySelector('select[name="action_type"]');
-                    select.innerHTML = '<option value="">Sélectionner un type</option>';
-                    data.forEach(type => {
-                        const option = document.createElement('option');
-                        option.value = type.id;
-                        option.textContent = type.nom;
-                        select.appendChild(option);
-                    });
+                .then(result => {
+                    if (result.success) {
+                        const select = document.querySelector('select[name="action_type"]');
+                        select.innerHTML = '<option value="">Sélectionner un type</option>';
+                        result.types.forEach(type => {
+                            const option = document.createElement('option');
+                            option.value = type.id;
+                            option.textContent = type.nom;
+                            select.appendChild(option);
+                        });
+                    }
                 })
                 .catch(error => console.error('Erreur:', error));
         }
@@ -213,7 +269,7 @@ $pdo = $database->getConnection();
                 .then(result => {
                     if (result.success) {
                         const data = result.agents;
-                        const select = document.getElementById('agent_id');
+                        const select = document.querySelector('select[name="agent_id"]');
                         select.innerHTML = '<option value="">Sélectionnez un agent</option>';
                         
                         data.forEach(agent => {
@@ -246,7 +302,7 @@ $pdo = $database->getConnection();
                                     const option = document.createElement('option');
                                     option.value = agent.id;
                                     option.textContent = `${agent.prenom} ${agent.nom}`;
-                                    select.appendChild(option);
+                                    agentSelect.appendChild(option);
                                 });
                             }
                         });
@@ -289,17 +345,16 @@ $pdo = $database->getConnection();
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     ${new Date(action.date_action).toLocaleDateString('fr-FR')}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(action.statut)}">
-                                        ${action.statut}
-                                    </span>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    ${action.commentaire || ''}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    ${action.commentaire ? 
-                                        `<button onclick="showComment('${action.commentaire}')" class="text-blue-600 hover:text-blue-900">
-                                            <i class="fas fa-comment"></i>
-                                        </button>` 
-                                        : ''}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <button onclick="viewComment('${action.commentaire || ''}')" class="text-blue-600 hover:text-blue-900 mr-2">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button onclick="deleteAction(${action.id})" class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </td>
                             `;
                             tbody.appendChild(row);
@@ -427,56 +482,10 @@ $pdo = $database->getConnection();
             }
         }
 
-        function showComment(comment) {
+        function viewComment(comment) {
             alert(comment);
         }
 
-        // Gestionnaire de soumission du formulaire d'action
-        document.getElementById('actionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const data = {
-                agent_id: formData.get('agent_id'),
-                type_action_id: formData.get('action_type'),
-                date_action: formData.get('date_action'),
-                commentaire: formData.get('commentaire')
-            };
-
-            fetch('/JS/STIB/api/em/create_action.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    closeActionModal();
-                    loadActions();
-                    this.reset();
-                } else {
-                    alert(result.error || 'Erreur lors de la création de l\'action');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Erreur lors de la création de l\'action');
-            });
-        });
-
-        // Event listeners pour les changements d'agent
-        document.getElementById('selectedAgent').addEventListener('change', loadActions);
-        document.getElementById('selectedAgentVacation').addEventListener('change', loadConges);
-        document.getElementById('statusFilter').addEventListener('change', loadConges);
-
-        // Chargement initial
-        document.addEventListener('DOMContentLoaded', function() {
-            loadPools();
-            loadActions();
-            loadConges();
-        });
         // Fonction pour charger les pools
 function loadPools() {
     fetch('/JS/STIB/api/em/pools.php')
@@ -542,6 +551,32 @@ document.getElementById('selectedPoolVacation').addEventListener('change', funct
     loadAgentsByPool(this, document.getElementById('selectedAgentVacation'));
     loadConges();
 });
+
+        // Fonction pour supprimer une action
+        function deleteAction(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette action ?')) {
+                fetch('/JS/STIB/api/em/delete_action.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action_id: id })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        loadActions(); // Recharger la liste des actions
+                        alert('Action supprimée avec succès');
+                    } else {
+                        alert(result.error || 'Erreur lors de la suppression de l\'action');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la suppression de l\'action');
+                });
+            }
+        }
     </script>
 </body>
 </html>

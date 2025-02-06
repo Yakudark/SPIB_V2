@@ -1,6 +1,8 @@
 <?php
 session_start();
 header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 require_once '../../config/database.php';
 
@@ -18,7 +20,21 @@ try {
     $pdo = $database->getConnection();
 
     // Requête pour vérifier les identifiants
-    $query = "SELECT * FROM utilisateurs WHERE matricule = :matricule LIMIT 1";
+    $query = "SELECT u.*, p.pool as user_pool 
+              FROM utilisateurs u 
+              LEFT JOIN (
+                  SELECT DISTINCT pool 
+                  FROM utilisateurs 
+                  WHERE pool IS NOT NULL
+              ) p ON u.id = (
+                  SELECT id 
+                  FROM utilisateurs 
+                  WHERE pool = p.pool 
+                  AND (role = 'PM' OR role = 'EM')
+                  LIMIT 1
+              )
+              WHERE u.matricule = :matricule 
+              LIMIT 1";
     $stmt = $pdo->prepare($query);
     $stmt->execute(['matricule' => $matricule]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -35,19 +51,33 @@ try {
         $_SESSION['role'] = $user['role'];
         $_SESSION['nom'] = $user['nom'];
         $_SESSION['prenom'] = $user['prenom'];
+        $_SESSION['pool'] = $user['user_pool'] ?? null;
 
-        // Debug du rôle
-        error_log("=== Debug du rôle ===");
-        error_log("Rôle original: '" . $user['role'] . "'");
-        error_log("Rôle en majuscules: '" . strtoupper($user['role']) . "'");
-        error_log("Longueur du rôle: " . strlen($user['role']));
-        error_log("Rôle en hexadécimal: " . bin2hex($user['role']));
+        // Nettoyage et normalisation du rôle
+        $role = trim($user['role']);
+        
+        // Conversion des caractères accentués (avant la mise en majuscules)
+        $role = strtr($role, [
+            'é' => 'e',
+            'è' => 'e',
+            'ê' => 'e',
+            'ë' => 'e',
+            'à' => 'a',
+            'â' => 'a',
+            'î' => 'i',
+            'ï' => 'i',
+            'ô' => 'o',
+            'û' => 'u',
+            'ù' => 'u',
+            'ü' => 'u'
+        ]);
+
+        // Conversion en majuscules après avoir retiré les accents
+        $role = strtoupper($role);
 
         // Définir l'URL de redirection en fonction du rôle
         $redirectUrl = '';
-        $role = trim(strtoupper($user['role'])); // Ajout de trim()
-        error_log("Rôle après trim et majuscules: '" . $role . "'");
-
+        
         switch($role) {
             case 'EM':
                 $redirectUrl = '/JS/STIB/dashboard/em.php';
@@ -65,13 +95,16 @@ try {
                 $redirectUrl = '/JS/STIB/dashboard/admin.php';
                 break;
             case 'SALARIE':
-            case 'SALARIÉ':
                 $redirectUrl = '/JS/STIB/dashboard/employee.php';
                 break;
             default:
-                $redirectUrl = '/JS/STIB/public/login.php';
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Rôle non reconnu: ' . htmlspecialchars($role) . ' (Original: ' . htmlspecialchars($user['role']) . ')'
+                ]);
+                exit;
         }
-
+        
         echo json_encode([
             'success' => true,
             'message' => 'Connexion réussie',
@@ -79,12 +112,16 @@ try {
             'user' => [
                 'id' => $user['id'],
                 'matricule' => $user['matricule'],
-                'role' => $user['role']
+                'role' => $role
             ]
         ]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Identifiants incorrects']);
     }
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Erreur lors de la connexion']);
+} catch (PDOException $e) {
+    error_log("Erreur de connexion: " . $e->getMessage());
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Erreur lors de la connexion: ' . $e->getMessage()
+    ]);
 }

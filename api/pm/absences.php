@@ -17,6 +17,23 @@ $pdo = $database->getConnection();
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         $query = "
+            WITH absence_periods AS (
+                SELECT 
+                    a2.agent_id,
+                    a2.date_debut,
+                    DATE_FORMAT(a2.date_debut, '%Y-%m') as month_key
+                FROM absences a2
+                WHERE a2.agent_id IN (SELECT id FROM utilisateurs WHERE pm_id = :pm_id)
+                AND DATE_FORMAT(a2.date_debut, '%Y-%m') > DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH), '%Y-%m')
+                AND DATE_FORMAT(a2.date_debut, '%Y-%m') <= DATE_FORMAT(CURRENT_DATE(), '%Y-%m')
+            ),
+            agent_total_periods AS (
+                SELECT 
+                    agent_id,
+                    COUNT(*) as total_periods
+                FROM absence_periods
+                GROUP BY agent_id
+            )
             SELECT 
                 a.id,
                 a.agent_id,
@@ -25,12 +42,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 a.date_debut,
                 a.date_fin,
                 a.commentaire,
-                DATEDIFF(IFNULL(a.date_fin, '2999-12-31'), a.date_debut) + 1 as nombre_jours,
+                DATEDIFF(IFNULL(a.date_fin, CURRENT_DATE()), a.date_debut) + 1 as nombre_jours,
                 a.signale_par_id,
-                CONCAT(u2.prenom, ' ', u2.nom) as signale_par_nom
+                CONCAT(u2.prenom, ' ', u2.nom) as signale_par_nom,
+                COALESCE(atp.total_periods, 0) as periodes_12_mois
             FROM absences a
             JOIN utilisateurs u ON a.agent_id = u.id
             LEFT JOIN utilisateurs u2 ON a.signale_par_id = u2.id
+            LEFT JOIN agent_total_periods atp ON atp.agent_id = a.agent_id
             WHERE u.pm_id = :pm_id
             ORDER BY a.date_debut DESC
         ";
