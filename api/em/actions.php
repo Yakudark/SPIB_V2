@@ -15,6 +15,13 @@ try {
     $database = new Database();
     $pdo = $database->getConnection();
     
+    // Sous-requête pour obtenir tous les agents (employee + utilisateurs)
+    $subquery = "
+        (SELECT id, nom, prenom FROM employee WHERE em_id = :em_id)
+        UNION
+        (SELECT id, nom, prenom FROM utilisateurs WHERE em_id = :em_id AND role = 'salarié')
+    ";
+    
     $query = "
         SELECT 
             a.id,
@@ -22,11 +29,10 @@ try {
             at.nom as type_action,
             a.commentaire,
             a.statut,
-            CONCAT(u.prenom, ' ', u.nom) as agent_name
+            CONCAT(ag.prenom, ' ', ag.nom) as agent_name
         FROM actions a
         JOIN action_types at ON a.type_action_id = at.id
-        JOIN utilisateurs u ON a.agent_id = u.id
-        WHERE u.em_id = :em_id
+        JOIN ($subquery) ag ON a.agent_id = ag.id
     ";
     
     $params = ['em_id' => $_SESSION['user_id']];

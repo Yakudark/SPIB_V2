@@ -17,30 +17,31 @@ try {
     
     // Récupérer les salariés qui sont sous la responsabilité de l'EM
     $query = "
-        SELECT 
+        (SELECT 
             id,
             nom,
             prenom,
             matricule,
-            role,
-            pool
+            'employee' as source
+        FROM employee 
+        WHERE em_id = :em_id)
+        
+        UNION
+        
+        (SELECT 
+            id,
+            nom,
+            prenom,
+            matricule,
+            'utilisateur' as source
         FROM utilisateurs 
-        WHERE em_id = :em_id 
-        AND role = 'salarié'
+        WHERE em_id = :em_id)
+        
+        ORDER BY nom ASC, prenom ASC
     ";
     
-    $params = ['em_id' => $_SESSION['user_id']];
-    
-    // Filtrer par pool si spécifié
-    if (isset($_GET['pool']) && !empty($_GET['pool'])) {
-        $query .= " AND pool = :pool";
-        $params['pool'] = $_GET['pool'];
-    }
-    
-    $query .= " ORDER BY nom ASC";
-    
     $stmt = $pdo->prepare($query);
-    $stmt->execute($params);
+    $stmt->execute(['em_id' => $_SESSION['user_id']]);
     
     $agents = $stmt->fetchAll(PDO::FETCH_ASSOC);
     

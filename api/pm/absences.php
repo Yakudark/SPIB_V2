@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             WITH RECURSIVE dates AS (
                 SELECT MIN(date_debut) as date_min, MAX(GREATEST(date_fin, CURRENT_DATE)) as date_max
                 FROM absences a
-                JOIN utilisateurs u ON a.agent_id = u.id
+                JOIN employee u ON a.agent_id = u.id
                 WHERE u.pm_id = :pm_id
                 AND date_debut >= DATE_SUB(CURRENT_DATE, INTERVAL 12 MONTH)
                 
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 (
                     SELECT a.*, u.pm_id 
                     FROM absences a
-                    JOIN utilisateurs u ON a.agent_id = u.id
+                    JOIN employee u ON a.agent_id = u.id
                     WHERE u.pm_id = :pm_id
                     AND a.date_debut >= DATE_SUB(CURRENT_DATE, INTERVAL 12 MONTH)
                     ORDER BY a.agent_id, a.date_debut
@@ -74,8 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 CONCAT(u2.prenom, ' ', u2.nom) as signale_par_nom,
                 COALESCE(ap.total_periods, 0) as periodes_12_mois
             FROM absences a
-            JOIN utilisateurs u ON a.agent_id = u.id
-            LEFT JOIN utilisateurs u2 ON a.signale_par_id = u2.id
+            JOIN employee u ON a.agent_id = u.id
+            LEFT JOIN employee u2 ON a.signale_par_id = u2.id
             LEFT JOIN agent_periods ap ON ap.agent_id = a.agent_id
             WHERE u.pm_id = :pm_id
             ORDER BY a.date_debut DESC
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 3. Vérifier l'agent
         $check_agent_query = "
             SELECT id, nom, prenom 
-            FROM utilisateurs 
+            FROM employee 
             WHERE id = :agent_id 
             AND pm_id = :pm_id
         ";
@@ -136,13 +136,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Agent non trouvé ou non autorisé');
         }
 
-        // 4. Insérer directement l'absence sans vérification
+        // 4. Vérifier si une absence identique existe déjà
+        $check_duplicate_query = "
+            SELECT COUNT(*) as count
+            FROM absences 
+            WHERE agent_id = :agent_id 
+            AND date_debut = :date_debut
+            AND (
+                (date_fin IS NULL AND :date_fin IS NULL)
+                OR 
+                (date_fin = :date_fin)
+            )
+        ";
+        
+        $date_fin = isset($data['date_fin']) && !empty($data['date_fin']) ? $data['date_fin'] : null;
+        
+        $check_duplicate_stmt = $pdo->prepare($check_duplicate_query);
+        $check_duplicate_stmt->execute([
+            'agent_id' => $data['agent_id'],
+            'date_debut' => $data['date_debut'],
+            'date_fin' => $date_fin
+        ]);
+        
+        $duplicate_count = $check_duplicate_stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        
+        if ($duplicate_count > 0) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => sprintf(
+                    'Une absence existe déjà pour %s %s du %s au %s',
+                    $agent['prenom'],
+                    $agent['nom'],
+                    date('d/m/Y', strtotime($data['date_debut'])),
+                    $date_fin ? date('d/m/Y', strtotime($date_fin)) : 'durée indéterminée'
+                )
+            ]);
+            exit;
+        }
+
+        // 5. Insérer l'absence
         $query = "
             INSERT INTO absences (agent_id, date_debut, date_fin, commentaire, signale_par_id)
             VALUES (:agent_id, :date_debut, :date_fin, :commentaire, :signale_par_id)
         ";
-        
-        $date_fin = isset($data['date_fin']) && !empty($data['date_fin']) ? $data['date_fin'] : null;
         
         $params = [
             'agent_id' => $data['agent_id'],
@@ -184,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $check_query = "
             SELECT a.id 
             FROM absences a
-            JOIN utilisateurs u ON a.agent_id = u.id
+            JOIN employee u ON a.agent_id = u.id
             WHERE a.id = :id 
             AND u.pm_id = :pm_id
         ";

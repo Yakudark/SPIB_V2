@@ -13,7 +13,7 @@ error_log("Role: " . (isset($_SESSION['role']) ? $_SESSION['role'] : 'Non défin
 error_log("Matricule: " . (isset($_SESSION['matricule']) ? $_SESSION['matricule'] : 'Non défini'));
 
 // Récupérer la liste des salariés qui dépendent de ce PM
-$query = "SELECT id, nom, prenom, matricule FROM utilisateurs WHERE pm_id = :pm_id AND role = 'salarié' ORDER BY nom, prenom";
+$query = "SELECT id, nom, prenom, matricule FROM employee WHERE pm_id = :pm_id ORDER BY nom, prenom";
 $stmt = $pdo->prepare($query);
 $stmt->execute(['pm_id' => $_SESSION['user_id']]);
 $salaries = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -25,7 +25,7 @@ error_log("PM ID utilisé: " . $_SESSION['user_id']);
 error_log("Nombre de salariés trouvés: " . count($salaries));
 
 // Vérifier tous les salariés qui ont un PM
-$query_check = "SELECT u.*, p.matricule as pm_matricule FROM utilisateurs u LEFT JOIN utilisateurs p ON u.pm_id = p.id WHERE u.role = 'salarié'";
+$query_check = "SELECT e.*, p.matricule as pm_matricule FROM employee e LEFT JOIN utilisateurs p ON e.pm_id = p.id";
 $stmt_check = $pdo->prepare($query_check);
 $stmt_check->execute();
 $all_salaries = $stmt_check->fetchAll(PDO::FETCH_ASSOC);

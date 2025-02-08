@@ -24,7 +24,7 @@ try {
     $pdo = $database->getConnection();
     
     // Vérifier que l'agent est bien sous la responsabilité de l'EM
-    $checkStmt = $pdo->prepare("SELECT id FROM utilisateurs WHERE id = ? AND em_id = ?");
+    $checkStmt = $pdo->prepare("SELECT id FROM employee WHERE id = ? AND em_id = ?");
     $checkStmt->execute([$data['agent_id'], $_SESSION['user_id']]);
     
     if (!$checkStmt->fetch()) {

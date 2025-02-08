@@ -15,8 +15,8 @@ try {
     
     // Récupérer les agents associés à ce PM
     $stmt = $pdo->prepare("
-        SELECT id, nom, prenom, matricule, service_id 
-        FROM utilisateurs 
+        SELECT id, nom, prenom, matricule 
+        FROM employee 
         WHERE pm_id = ? 
         ORDER BY nom, prenom
     ");
