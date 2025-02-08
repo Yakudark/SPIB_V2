@@ -148,8 +148,8 @@ foreach ($all_salaries as $s) {
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date début</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date fin</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de début</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de fin</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre de jours</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Périodes d'absence</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commentaire</th>
@@ -158,42 +158,6 @@ foreach ($all_salaries as $s) {
                         </thead>
                         <tbody id="absencesTableBody" class="bg-white divide-y divide-gray-200">
                             <!-- Les absences seront ajoutées ici dynamiquement -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Section des congés -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <div class="flex items-center space-x-4">
-                        <h3 class="text-lg font-semibold text-gray-700">Demandes de congés</h3>
-                        <select id="selectedAgentVacation" class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                            <option value="">Tous les salariés</option>
-                        </select>
-                        <select id="statusFilter" class="block w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" onchange="loadConges()">
-                            <option value="">Tous les statuts</option>
-                            <option value="en_attente">En attente</option>
-                            <option value="approuve">Approuvé</option>
-                            <option value="refuse">Refusé</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200" id="demandes-table">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date demande</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date début</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date fin</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nb jours</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <!-- Les données seront insérées ici dynamiquement -->
                         </tbody>
                     </table>
                 </div>
@@ -239,11 +203,6 @@ foreach ($all_salaries as $s) {
                 loadAgentsInSelect(selectActions);
             }
             
-            const selectVacations = document.getElementById('selectedAgentVacation');
-            if (selectVacations) {
-                loadAgentsInSelect(selectVacations);
-            }
-
             const agentsCount = document.getElementById('agents-count');
             if (agentsCount && agents && Array.isArray(agents)) {
                 agentsCount.textContent = agents.length;
@@ -271,7 +230,6 @@ foreach ($all_salaries as $s) {
             try {
                 loadAgents();
                 loadActions();
-                loadConges();
                 loadAbsences();
                 loadEntretiens(); 
                 loadAgentsForFilter(); 
@@ -280,6 +238,7 @@ foreach ($all_salaries as $s) {
             }
         });
     </script>
+    
     <script src="/JS/STIB/dashboard/js/pm_entretiens.js"></script>
 </body>
 </html>

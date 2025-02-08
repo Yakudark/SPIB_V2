@@ -20,19 +20,14 @@ try {
     $pdo = $database->getConnection();
 
     // Requête pour vérifier les identifiants
-    $query = "SELECT u.*, p.pool as user_pool 
+    $query = "SELECT 
+                u.*,
+                u.pool as user_pool,
+                pm.nom as pm_nom,
+                pm.prenom as pm_prenom,
+                pm.id as pm_id
               FROM utilisateurs u 
-              LEFT JOIN (
-                  SELECT DISTINCT pool 
-                  FROM utilisateurs 
-                  WHERE pool IS NOT NULL
-              ) p ON u.id = (
-                  SELECT id 
-                  FROM utilisateurs 
-                  WHERE pool = p.pool 
-                  AND (role = 'PM' OR role = 'EM')
-                  LIMIT 1
-              )
+              LEFT JOIN utilisateurs pm ON u.pm_id = pm.id
               WHERE u.matricule = :matricule 
               LIMIT 1";
     $stmt = $pdo->prepare($query);
@@ -52,6 +47,9 @@ try {
         $_SESSION['nom'] = $user['nom'];
         $_SESSION['prenom'] = $user['prenom'];
         $_SESSION['pool'] = $user['user_pool'] ?? null;
+        $_SESSION['pm_id'] = $user['pm_id'];
+        $_SESSION['pm_nom'] = $user['pm_nom'];
+        $_SESSION['pm_prenom'] = $user['pm_prenom'];
 
         // Nettoyage et normalisation du rôle
         $role = trim($user['role']);

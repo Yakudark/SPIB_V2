@@ -3,7 +3,7 @@
     <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <h2 class="text-lg font-semibold text-gray-700 mb-4">Ajouter une absence</h2>
-            <form id="absenceForm" onsubmit="submitAbsence(event)">
+            <form id="absenceForm">
                 <div class="mb-4">
                     <label for="absenceAgent" class="block text-sm font-medium text-gray-700">Agent</label>
                     <select id="absenceAgent" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">

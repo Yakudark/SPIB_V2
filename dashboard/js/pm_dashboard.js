@@ -110,6 +110,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+async function submitAction(event) {
+    event.preventDefault();
+    
+    const formData = {
+        agent_id: document.getElementById('actionAgent').value,
+        action_type: document.getElementById('actionType').value,
+        date_action: document.getElementById('actionDate').value,
+        commentaire: document.getElementById('actionCommentaire').value
+    };
+
+    try {
+        const response = await fetch('/JS/STIB/api/pm/create_action.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            closeActionModal();
+            loadActions();
+        } else {
+            alert('Erreur lors de la création de l\'action');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue');
+    }
+}
+
 function loadAgents() {
     fetch('/JS/STIB/api/pm/agents.php')
         .then(response => response.json())
@@ -118,22 +151,12 @@ function loadAgents() {
             const selectActions = document.getElementById('selectedAgent');
             selectActions.innerHTML = '<option value="">Tous les salariés</option>';
             
-            // Remplir le sélecteur pour les vacances
-            const selectVacations = document.getElementById('selectedAgentVacation');
-            selectVacations.innerHTML = '<option value="">Tous les salariés</option>';
-            
             agents.forEach(agent => {
                 // Pour le sélecteur des actions
                 const optionActions = document.createElement('option');
                 optionActions.value = agent.id;
                 optionActions.textContent = `${agent.nom} ${agent.prenom}`;
                 selectActions.appendChild(optionActions);
-
-                // Pour le sélecteur des vacances
-                const optionVacations = document.createElement('option');
-                optionVacations.value = agent.id;
-                optionVacations.textContent = `${agent.nom} ${agent.prenom}`;
-                selectVacations.appendChild(optionVacations);
             });
         })
         .catch(error => console.error('Erreur lors du chargement des agents:', error));
@@ -207,57 +230,101 @@ function loadDashboardData() {
     loadActions();
 }
 
-function loadConges() {
-    const selectedAgent = document.getElementById('selectedAgentVacation').value;
-    const statusFilter = document.getElementById('statusFilter').value;
-    let url = '/JS/STIB/api/pm/conges.php';
+async function submitAbsence(event) {
+    event.preventDefault();
     
-    // Ajout des paramètres à l'URL
-    const params = new URLSearchParams();
-    if (selectedAgent) params.append('agent_id', selectedAgent);
-    if (statusFilter) params.append('status', statusFilter);
-    
-    if (params.toString()) {
-        url += '?' + params.toString();
-    }
+    const agent_id = document.getElementById('absenceAgent').value;
+    const date_debut = document.getElementById('dateDebut').value;
+    const date_fin = document.getElementById('dateFin').value;
+    const commentaire = document.getElementById('commentaire').value;
 
-    fetch(url)
-        .then(response => response.json())
-        .then(conges => {
-            const tbody = document.querySelector('#demandes-table tbody');
-            tbody.innerHTML = '';
-            
-            conges.forEach(conge => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="px-3 py-2 whitespace-nowrap">${new Date(conge.date_demande).toLocaleDateString()}</td>
-                    <td class="px-3 py-2 whitespace-nowrap">${new Date(conge.date_debut).toLocaleDateString()}</td>
-                    <td class="px-3 py-2 whitespace-nowrap">${new Date(conge.date_fin).toLocaleDateString()}</td>
-                    <td class="px-3 py-2 whitespace-nowrap">${conge.nb_jours}</td>
-                    <td class="px-3 py-2 whitespace-nowrap">${conge.type || 'Congé'}</td>
-                    <td class="px-3 py-2 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(conge.statut)}">
-                            ${conge.statut}
-                        </span>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        })
-        .catch(error => console.error('Erreur lors du chargement des congés:', error));
+    try {
+        const response = await fetch('/JS/STIB/api/pm/absences.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                agent_id,
+                date_debut,
+                date_fin: date_fin || null,
+                commentaire
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            alert(data.error || 'Erreur lors de l\'ajout de l\'absence');
+            return;
+        }
+        
+        closeAbsenceModal();
+        loadAbsences(document.getElementById('selectedAgent').value);
+    } catch (error) {
+        console.error('Erreur réseau:', error);
+        alert('Une erreur réseau est survenue');
+    }
 }
 
-function getStatusClass(status) {
-    switch(status) {
-        case 'En attente':
-            return 'bg-yellow-100 text-yellow-800';
-        case 'Approuvé':
-            return 'bg-green-100 text-green-800';
-        case 'Refusé':
-            return 'bg-red-100 text-red-800';
-        default:
-            return 'bg-gray-100 text-gray-800';
-    }
+function loadAbsences(agentId) {
+    const url = agentId 
+        ? `/JS/STIB/api/pm/absences.php?agent_id=${agentId}`
+        : '/JS/STIB/api/pm/absences.php';
+
+    fetch(url)
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                if (data && data.error) {
+                    throw new Error(data.error);
+                }
+                throw new Error('Erreur lors du chargement des absences');
+            }
+            return data;
+        })
+        .then(data => {
+            if (data.success) {
+                const tbody = document.getElementById('absencesTableBody');
+                tbody.innerHTML = '';
+                
+                data.absences.forEach(absence => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${absence.agent_prenom} ${absence.agent_nom}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${new Date(absence.date_debut).toLocaleDateString()}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${absence.date_fin === '2999-12-31' ? 'Non définie' : new Date(absence.date_fin).toLocaleDateString()}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${absence.nombre_jours || ''}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span class="font-medium">${absence.periodes_12_mois}</span>
+                            <span class="text-xs text-gray-500 ml-1">périodes sur 12 mois</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${absence.commentaire || ''}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <button onclick="deleteAbsence(${absence.id})" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        })
+        .catch(error => {
+            if (!(error instanceof Error && error.message)) {
+                console.error('Erreur réseau:', error);
+            }
+        });
 }
 
 async function markActionComplete(id) {
@@ -315,121 +382,6 @@ async function deleteAction(id) {
     }
 }
 
-// Gestion des absences
-async function loadAbsences() {
-    try {
-        const response = await fetch('/JS/STIB/api/pm/absences.php');
-        const data = await response.json();
-        
-        if (data.success) {
-            const tbody = document.getElementById('absencesTableBody');
-            tbody.innerHTML = '';
-            
-            data.absences.forEach(absence => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${absence.agent_prenom} ${absence.agent_nom}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${new Date(absence.date_debut).toLocaleDateString()}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${absence.date_fin === '2999-12-31' ? 
-                            '<span class="text-red-600">Non définie</span>' : 
-                            new Date(absence.date_fin).toLocaleDateString()}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${absence.nombre_jours}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <span class="font-medium">${absence.periodes_12_mois}</span>
-                        <span class="text-xs text-gray-500 ml-1">périodes d'absence sur les 12 derniers mois</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${absence.commentaire || ''}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <button onclick="deleteAbsence(${absence.id})" class="text-red-600 hover:text-red-900">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-    }
-}
-
-async function submitAbsence(event) {
-    event.preventDefault();
-    
-    const agent_id = document.getElementById('absenceAgent').value;
-    const date_debut = document.getElementById('dateDebut').value;
-    const date_fin = document.getElementById('dateFin').value;
-    const commentaire = document.getElementById('commentaire').value;
-
-    // Si pas de date de fin, demander confirmation
-    if (!date_fin) {
-        if (!confirm("Aucune date de fin n'a été spécifiée. Voulez-vous en ajouter une ?")) {
-            // Si non, continuer avec la date par défaut (31/12/2999)
-            try {
-                const response = await fetch('/JS/STIB/api/pm/absences.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        agent_id,
-                        date_debut,
-                        commentaire
-                    })
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    closeAbsenceModal();
-                    loadAbsences();
-                } else {
-                    alert(data.error || 'Erreur lors de l\'ajout de l\'absence');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
-            return;
-        }
-        return;
-    }
-
-    // Si une date de fin est spécifiée
-    try {
-        const response = await fetch('/JS/STIB/api/pm/absences.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                agent_id,
-                date_debut,
-                date_fin,
-                commentaire
-            })
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-            closeAbsenceModal();
-            loadAbsences();
-        } else {
-            alert(data.error || 'Erreur lors de l\'ajout de l\'absence');
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-    }
-}
-
 async function deleteAbsence(id) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette absence ?')) {
         try {
@@ -457,19 +409,29 @@ async function deleteAbsence(id) {
 document.addEventListener('DOMContentLoaded', function() {
     // Charger les données initiales
     loadAgents();
-    loadDashboardData();
     loadActions();
-    loadConges();
     loadAbsences();
+    loadDashboardData();
 
-    // Ajouter les écouteurs pour les sélecteurs
+    // Récupérer les éléments
+    const actionForm = document.getElementById('actionForm');
+    const absenceForm = document.getElementById('absenceForm');
     const selectedAgent = document.getElementById('selectedAgent');
-    if (selectedAgent) {
-        selectedAgent.addEventListener('change', loadActions);
+
+    // Gérer le formulaire d'action
+    if (actionForm) {
+        actionForm.addEventListener('submit', submitAction);
     }
 
-    const selectedAgentVacation = document.getElementById('selectedAgentVacation');
-    if (selectedAgentVacation) {
-        selectedAgentVacation.addEventListener('change', loadConges);
+    // Gérer le formulaire d'absence
+    if (absenceForm) {
+        absenceForm.addEventListener('submit', submitAbsence);
+    }
+
+    // Gérer le changement d'agent sélectionné
+    if (selectedAgent) {
+        selectedAgent.addEventListener('change', function() {
+            loadAbsences(this.value);
+        });
     }
 });

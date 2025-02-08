@@ -46,31 +46,6 @@ if ($_SESSION['role'] !== 'salarié') {
 
             <!-- Statistiques -->
             <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="text-gray-600 text-center">Jours de congé</div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-3xl font-bold text-green-600" id="conges-count">20</span>
-                        <span class="text-sm text-gray-500" id="conges-en-attente">(1 en attente)</span>
-                    </div>
-                    <button onclick="openVacationModal()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
-                        +
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="text-gray-600 text-center">Demandes</div>
-                <div class="flex items-center justify-between">
-                    <div class="text-3xl font-bold text-blue-600">3</div>
-                    <div class="text-sm text-gray-500">En attente</div>
-                    <div class="text-sm">
-                        <div class="text-green-600"> <span id="demandes-approuvees">1</span></div>
-                        <div class="text-red-600"> <span id="demandes-rejetees">1</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gray-50 p-4 rounded-lg">
                 <div class="text-gray-600 text-center">Absences & Entretiens</div>
                 <div class="flex items-center justify-between">
                     <div>
@@ -198,62 +173,6 @@ if ($_SESSION['role'] !== 'salarié') {
                     </div>
                 </div>
             </div>
-
-            <!-- Mes Demandes -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold">Mes Demandes</h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date demande</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date début</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date fin</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nb jours</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="demandes-table">
-                            <!-- Les données seront insérées ici dynamiquement -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de demande de congés -->
-    <div id="vacationModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3">
-                <h3 class="text-lg font-semibold mb-4">Nouvelle demande de congés</h3>
-                <form id="vacationForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Date de début</label>
-                        <input type="date" name="start_date" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Date de fin</label>
-                        <input type="date" name="end_date" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Commentaire</label>
-                        <textarea name="comment" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
-                    </div>
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" onclick="closeVacationModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
-                            Annuler
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
-                            Soumettre
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 
@@ -265,124 +184,23 @@ if ($_SESSION['role'] !== 'salarié') {
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Mettre à jour les compteurs d'absences
-                    document.getElementById('absences-count').textContent = data.stats.absences.nombre;
-                    
-                    // Mettre à jour les compteurs d'entretiens
-                    document.getElementById('entretiens-pm').textContent = data.stats.entretiens.PM;
-                    document.getElementById('entretiens-em').textContent = data.stats.entretiens.EM;
-                    document.getElementById('entretiens-dm').textContent = data.stats.entretiens.DM;
+                    document.getElementById('absences-count').textContent = data.absences_count;
                 }
             } catch (error) {
                 console.error('Erreur:', error);
             }
         }
 
-        // Fonction pour charger les entretiens (à venir et historique)
+        // Fonction pour charger les entretiens
         async function loadEntretiens() {
             try {
-                // Charger les entretiens à venir
-                const upcomingResponse = await fetch('/JS/STIB/api/employee/entretiens.php?type=upcoming');
-                const upcomingData = await upcomingResponse.json();
-                
-                const upcomingTableBody = document.getElementById('upcoming-interviews');
-                upcomingTableBody.innerHTML = '';
-                
-                if (upcomingData.success && upcomingData.entretiens.length > 0) {
-                    upcomingData.entretiens.forEach(entretien => {
-                        upcomingTableBody.innerHTML += `
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">${entretien.date}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${entretien.type}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${entretien.avec}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${entretien.commentaire}</td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    upcomingTableBody.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">Aucun entretien à venir</td>
-                        </tr>
-                    `;
-                }
-
-                // Charger l'historique des entretiens
-                const historyResponse = await fetch('/JS/STIB/api/employee/entretiens.php?type=history');
-                const historyData = await historyResponse.json();
-                
-                const historyTableBody = document.getElementById('history-interviews');
-                historyTableBody.innerHTML = '';
-                
-                if (historyData.success && historyData.entretiens.length > 0) {
-                    historyData.entretiens.forEach(entretien => {
-                        historyTableBody.innerHTML += `
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">${entretien.date}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${entretien.type}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${entretien.avec}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${entretien.commentaire}</td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    historyTableBody.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">Aucun entretien dans l'historique</td>
-                        </tr>
-                    `;
-                }
-                
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
-        }
-
-        // Fonction pour charger les demandes de congés
-        async function loadVacationRequests() {
-            try {
-                const response = await fetch('/JS/STIB/api/employee/conges.php');
+                const response = await fetch('/JS/STIB/api/employee/entretiens.php');
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Mettre à jour le compteur de congés
-                    document.getElementById('conges-count').textContent = data.conges.jours_disponibles;
-                    document.getElementById('conges-en-attente').textContent = `(${data.conges.demandes_en_attente} en attente)`;
-                    
-                    // Mettre à jour les compteurs de demandes
-                    document.getElementById('demandes-approuvees').textContent = data.demandes.demandes_approuvees;
-                    document.getElementById('demandes-rejetees').textContent = data.demandes.demandes_rejetees;
-                    
-                    // Mettre à jour le tableau des demandes
-                    const demandesTable = document.getElementById('demandes-table');
-                    demandesTable.innerHTML = data.demandes.liste.map(demande => `
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.date_demande}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.date_debut}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.date_fin}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">${demande.nb_jours}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">Congés</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    ${demande.statut === 'en_attente' ? 'bg-yellow-100 text-yellow-800' : 
-                                    demande.statut === 'approuve' ? 'bg-green-100 text-green-800' : 
-                                    'bg-red-100 text-red-800'}">
-                                    ${demande.statut === 'en_attente' ? 'En attente' : 
-                                      demande.statut === 'approuve' ? 'Approuvé' : 'Refusé'}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <button onclick="showDetails(${demande.id})" class="text-blue-600 hover:text-blue-900">
-                                    <i class="fas fa-info-circle"></i>
-                                </button>
-                                ${demande.statut === 'en_attente' ? `
-                                    <button onclick="deleteRequest(${demande.id})" class="text-red-600 hover:text-red-900 ml-2">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                ` : ''}
-                            </td>
-                        </tr>
-                    `).join('');
+                    document.getElementById('entretiens-pm').textContent = data.pm_count;
+                    document.getElementById('entretiens-em').textContent = data.em_count;
+                    document.getElementById('entretiens-dm').textContent = data.dm_count;
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -396,69 +214,32 @@ if ($_SESSION['role'] !== 'salarié') {
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Mettre à jour le tableau
-                    const tbody = document.getElementById('absences-table');
+                    const tbody = document.getElementById('absencesTableBody');
                     tbody.innerHTML = '';
                     
-                    if (data.absences.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                                    Aucune absence enregistrée
-                                </td>
-                            </tr>
+                    data.absences.forEach(absence => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${new Date(absence.date_debut).toLocaleDateString()}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${absence.date_fin ? new Date(absence.date_fin).toLocaleDateString() : 'Non définie'}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${absence.commentaire || ''}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${absence.signale_par_nom || ''}
+                            </td>
                         `;
-                    } else {
-                        data.absences.forEach(absence => {
-                            const tr = document.createElement('tr');
-                            tr.innerHTML = `
-                                <td class="px-6 py-4 whitespace-nowrap">${absence.date_debut}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${absence.date_fin}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${absence.jours_passes} jours</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${absence.signale_par}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${absence.motif}</td>
-                            `;
-                            tbody.appendChild(tr);
-                        });
-                    }
-
-                    // Mettre à jour la pagination
-                    const paginationNumbers = document.getElementById('pagination-numbers');
-                    const prevButton = document.getElementById('prev-page');
-                    const nextButton = document.getElementById('next-page');
-                    const paginationInfo = document.getElementById('pagination-info');
-
-                    // Mise à jour des boutons précédent/suivant
-                    prevButton.disabled = data.pagination.current_page === 1;
-                    nextButton.disabled = data.pagination.current_page === data.pagination.total_pages;
-                    
-                    prevButton.onclick = () => loadAbsences(data.pagination.current_page - 1);
-                    nextButton.onclick = () => loadAbsences(data.pagination.current_page + 1);
-
-                    // Mise à jour des numéros de page
-                    paginationNumbers.innerHTML = '';
-                    for (let i = 1; i <= data.pagination.total_pages; i++) {
-                        const button = document.createElement('button');
-                        button.className = `px-3 py-1 rounded ${i === data.pagination.current_page 
-                            ? 'bg-blue-500 text-white' 
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`;
-                        button.textContent = i;
-                        button.onclick = () => loadAbsences(i);
-                        paginationNumbers.appendChild(button);
-                    }
-
-                    // Mise à jour de l'information de pagination
-                    paginationInfo.textContent = `Page ${data.pagination.current_page} sur ${data.pagination.total_pages} (${data.pagination.total_items} absences)`;
+                        tbody.appendChild(tr);
+                    });
                 }
             } catch (error) {
                 console.error('Erreur:', error);
             }
         }
-
-        // Charger la première page au chargement
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAbsences(1);
-        });
 
         // Fonction pour switcher entre les onglets
         function switchTab(tab) {
@@ -473,78 +254,12 @@ if ($_SESSION['role'] !== 'salarié') {
             document.getElementById('history-content').classList.toggle('hidden', tab !== 'history');
         }
 
-        // Fonctions pour le modal
-        function openVacationModal() {
-            document.getElementById('vacationModal').classList.remove('hidden');
-        }
-
-        function closeVacationModal() {
-            document.getElementById('vacationModal').classList.add('hidden');
-        }
-
-        // Gestionnaire de soumission du formulaire
-        document.getElementById('vacationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            
-            try {
-                const response = await fetch('/JS/STIB/api/employee/conges.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    closeVacationModal();
-                    loadVacationRequests();
-                } else {
-                    alert(data.error || 'Une erreur est survenue');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                alert('Une erreur est survenue');
-            }
-        });
-
         // Charger les données au chargement de la page
         document.addEventListener('DOMContentLoaded', function() {
             loadAbsencesStats();
-            loadVacationRequests();
-            loadAbsences();
             loadEntretiens();
+            loadAbsences();
         });
-
-        // Fonction pour supprimer une demande
-        async function deleteRequest(id) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cette demande ?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch('/JS/STIB/api/employee/conges.php', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ id: id })
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    loadVacationRequests();
-                } else {
-                    alert(data.error || 'Une erreur est survenue');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                alert('Une erreur est survenue');
-            }
-        }
-
-        // Fonction pour afficher les détails d'une demande
-        function showDetails(id) {
-            alert('Détails de la demande ' + id);
-        }
     </script>
 </body>
 </html>

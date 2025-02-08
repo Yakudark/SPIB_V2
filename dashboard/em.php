@@ -104,49 +104,6 @@ $nb_salaries = $result['nb_salaries'];
                 </table>
             </div>
         </div>
-
-        <!-- Tableau des demandes de vacances -->
-        <div class="bg-white rounded-lg shadow p-6 mt-8">
-        <div class="flex justify-between items-center mb-6">
-    <div class="flex items-center space-x-4">
-        <h3 class="text-lg font-semibold text-gray-700">Listes des demandes de congés</h3>
-        <!-- Filtres -->
-        <div class="flex space-x-4">
-            <select id="selectedPoolVacation" class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <option value="">Tous les pools</option>
-            </select>
-            <select id="selectedAgentVacation" class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <option value="">Tous les salariés</option>
-            </select>
-            <select id="statusFilter" class="block w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <option value="">Tous les statuts</option>
-                <option value="en_attente">En attente</option>
-                <option value="approuve">Approuvé</option>
-                <option value="refuse">Refusé</option>
-            </select>
-        </div>
-    </div>
-</div>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200" id="demandes-table">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date demande</th>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date début</th>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date fin</th>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nb jours</th>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <!-- Les données seront insérées ici dynamiquement -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
 
     <!-- Modal pour nouvelle action -->
@@ -195,190 +152,79 @@ $nb_salaries = $result['nb_salaries'];
                 actionForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
-                    const formData = {
-                        agent_id: this.agent_id.value,
-                        type_action_id: this.elements['action_type'].value,
-                        date_action: this.date_action.value,
-                        commentaire: this.commentaire.value
-                    };
-
+                    const formData = new FormData(this);
+                    
                     try {
-                        const response = await fetch('/JS/STIB/api/em/create_action.php', {
+                        const response = await fetch('/JS/STIB/api/em/actions.php', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(formData)
+                            body: formData
                         });
-
-                        const data = await response.json();
                         
-                        if (data.success) {
+                        const result = await response.json();
+                        
+                        if (result.success) {
                             closeActionModal();
                             loadActions();
-                            alert('Action créée avec succès');
                         } else {
-                            alert(data.error || 'Erreur lors de la création de l\'action');
+                            alert(result.error || 'Une erreur est survenue');
                         }
                     } catch (error) {
                         console.error('Erreur:', error);
-                        alert('Erreur lors de la création de l\'action');
+                        alert('Une erreur est survenue');
                     }
                 });
             }
 
-            // Chargement initial des données
             loadPools();
+            loadAgents();
             loadActions();
-            loadConges();
         });
 
-        function openActionModal() {
-            document.getElementById('actionModal').classList.remove('hidden');
-            // Charger les agents et les types d'actions
-            loadAgentsForModal();
-            loadActionTypes();
-        }
-
-        function closeActionModal() {
-            document.getElementById('actionModal').classList.add('hidden');
-            document.getElementById('actionForm').reset();
-        }
-
-        function loadActionTypes() {
-            fetch('/JS/STIB/api/em/action_types.php')
+        function loadPools() {
+            fetch('/JS/STIB/api/em/pools.php')
                 .then(response => response.json())
                 .then(result => {
                     if (result.success) {
-                        const select = document.querySelector('select[name="action_type"]');
-                        select.innerHTML = '<option value="">Sélectionner un type</option>';
-                        result.types.forEach(type => {
-                            const option = document.createElement('option');
-                            option.value = type.id;
-                            option.textContent = type.nom;
-                            select.appendChild(option);
-                        });
+                        const pools = result.pools;
+                        const selectPools = document.getElementById('selectedPool');
+                        if (selectPools) {
+                            selectPools.innerHTML = '<option value="">Tous les pools</option>';
+                            pools.forEach(pool => {
+                                selectPools.innerHTML += `<option value="${pool}">${pool}</option>`;
+                            });
+                        }
                     }
                 })
                 .catch(error => console.error('Erreur:', error));
         }
 
-        function loadAgentsForModal() {
-            fetch('/JS/STIB/api/em/agents.php')
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        const data = result.agents;
-                        const select = document.querySelector('select[name="agent_id"]');
-                        select.innerHTML = '<option value="">Sélectionnez un agent</option>';
-                        
-                        data.forEach(agent => {
-                            const option = document.createElement('option');
-                            option.value = agent.id;
-                            option.textContent = `${agent.prenom} ${agent.nom}`;
-                            select.appendChild(option);
-                        });
-                    }
-                })
-                .catch(error => console.error('Erreur:', error));
-        }
-
-        // Fonction pour charger les agents dans le sélecteur principal
         function loadAgents() {
             fetch('/JS/STIB/api/em/agents.php')
                 .then(response => response.json())
                 .then(result => {
                     if (result.success) {
-                        const data = result.agents;
-                        const selects = [
-                            document.getElementById('selectedAgent'),
-                            document.getElementById('selectedAgentVacation')
-                        ];
-                        
-                        selects.forEach(select => {
-                            if (select) {
-                                select.innerHTML = '<option value="">Tous les salariés</option>';
-                                data.forEach(agent => {
-                                    const option = document.createElement('option');
-                                    option.value = agent.id;
-                                    option.textContent = `${agent.prenom} ${agent.nom}`;
-                                    agentSelect.appendChild(option);
-                                });
-                            }
-                        });
+                        const agents = result.agents;
+                        const selectAgents = document.getElementById('selectedAgent');
+                        if (selectAgents) {
+                            selectAgents.innerHTML = '<option value="">Tous les salariés</option>';
+                            agents.forEach(agent => {
+                                selectAgents.innerHTML += `<option value="${agent.id}">${agent.nom} ${agent.prenom}</option>`;
+                            });
+                        }
                     }
                 })
                 .catch(error => console.error('Erreur:', error));
         }
 
-        // Fonction pour charger les actions
         function loadActions() {
-    const selectedPool = document.getElementById('selectedPool').value;
-    const selectedAgent = document.getElementById('selectedAgent').value;
-    let url = '/JS/STIB/api/em/actions.php';
-    
-    const params = new URLSearchParams();
-    if (selectedPool) params.append('pool', selectedPool);
-    if (selectedAgent) params.append('agent_id', selectedAgent);
-    
-    if (params.toString()) {
-        url += '?' + params.toString();
-    }
-
-            fetch(url)
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        const data = result.actions;
-                        const tbody = document.querySelector('#actions-table tbody');
-                        tbody.innerHTML = '';
-                        
-                        data.forEach(action => {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ${action.agent_name}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ${action.type_action}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ${new Date(action.date_action).toLocaleDateString('fr-FR')}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ${action.commentaire || ''}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <button onclick="viewComment('${action.commentaire || ''}')" class="text-blue-600 hover:text-blue-900 mr-2">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button onclick="deleteAction(${action.id})" class="text-red-600 hover:text-red-900">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            `;
-                            tbody.appendChild(row);
-                        });
-
-                        // Mettre à jour le compteur
-                        document.getElementById('actions-count').textContent = data.length;
-                    }
-                })
-                .catch(error => console.error('Erreur:', error));
-        }
-
-        // Fonction pour charger les demandes de congés
-        function loadConges() {
-            const selectedPool = document.getElementById('selectedPoolVacation').value;
-            const selectedAgent = document.getElementById('selectedAgentVacation').value;
-            const statusFilter = document.getElementById('statusFilter').value;
+            const selectedPool = document.getElementById('selectedPool').value;
+            const selectedAgent = document.getElementById('selectedAgent').value;
+            let url = '/JS/STIB/api/em/actions.php';
             
             const params = new URLSearchParams();
             if (selectedPool) params.append('pool', selectedPool);
             if (selectedAgent) params.append('agent_id', selectedAgent);
-            if (statusFilter) params.append('status', statusFilter);
             
-            let url = '/JS/STIB/api/em/conges.php';
             if (params.toString()) {
                 url += '?' + params.toString();
             }
@@ -387,98 +233,48 @@ $nb_salaries = $result['nb_salaries'];
                 .then(response => response.json())
                 .then(result => {
                     if (result.success) {
-                        const conges = result.conges;
-                        const tbody = document.querySelector('#demandes-table tbody');
+                        const actionsCount = document.getElementById('actions-count');
+                        if (actionsCount) {
+                            actionsCount.textContent = result.actions.length;
+                        }
+
+                        const tbody = document.getElementById('actions-table').querySelector('tbody');
                         tbody.innerHTML = '';
                         
-                        conges.forEach(demande => {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
-                                    ${new Date(demande.date_demande).toLocaleDateString('fr-FR')}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
-                                    ${new Date(demande.date_debut).toLocaleDateString('fr-FR')}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
-                                    ${new Date(demande.date_fin).toLocaleDateString('fr-FR')}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
-                                    ${demande.nb_jours}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
-                                    Congés
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(demande.statut)}">
-                                        ${demande.statut}
-                                    </span>
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                    ${demande.statut === 'en_attente' ? `
-                                        <div class="flex space-x-2">
-                                            <button onclick="updateCongeStatus('${demande.id}', 'approuve')" 
-                                                class="text-green-600 hover:text-green-900">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                            <button onclick="updateCongeStatus('${demande.id}', 'refuse')" 
-                                                class="text-red-600 hover:text-red-900">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    ` : ''}
+                        result.actions.forEach(action => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${action.agent_name}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${action.type_action}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(action.date_action).toLocaleDateString('fr-FR')}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${action.commentaire || ''}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <button onclick="viewComment('${action.commentaire || ''}')" class="text-blue-600 hover:text-blue-900 mr-2">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button onclick="deleteAction(${action.id})" class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </td>
                             `;
-                            tbody.appendChild(row);
+                            tbody.appendChild(tr);
                         });
                     }
                 })
                 .catch(error => console.error('Erreur:', error));
         }
 
-        // Fonction pour mettre à jour le statut d'une demande de congés
-        function updateCongeStatus(congeId, newStatus) {
-            console.log('Mise à jour du congé:', congeId, 'avec le statut:', newStatus);
-            
-            fetch('/JS/STIB/api/em/update_conge.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    conge_id: congeId,
-                    status: newStatus
-                })
-            })
-            .then(response => {
-                console.log('Réponse reçue:', response);
-                return response.json();
-            })
-            .then(result => {
-                console.log('Résultat:', result);
-                if (result.success) {
-                    // Recharger la liste des congés
-                    loadConges();
-                } else {
-                    alert('Erreur lors de la mise à jour du statut: ' + (result.error || 'Erreur inconnue'));
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Erreur lors de la mise à jour du statut');
-            });
+        function openActionModal() {
+            const modal = document.getElementById('actionModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
         }
 
-        function getStatusClass(status) {
-            switch (status) {
-                case 'en_attente':
-                    return 'bg-yellow-100 text-yellow-800';
-                case 'approuve':
-                    return 'bg-green-100 text-green-800';
-                case 'refuse':
-                    return 'bg-red-100 text-red-800';
-                default:
-                    return 'bg-gray-100 text-gray-800';
+        function closeActionModal() {
+            const modal = document.getElementById('actionModal');
+            if (modal) {
+                modal.classList.add('hidden');
             }
         }
 
@@ -486,73 +282,6 @@ $nb_salaries = $result['nb_salaries'];
             alert(comment);
         }
 
-        // Fonction pour charger les pools
-function loadPools() {
-    fetch('/JS/STIB/api/em/pools.php')
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                const pools = result.pools;
-                const poolSelects = [
-                    document.getElementById('selectedPool'),
-                    document.getElementById('selectedPoolVacation')
-                ];
-                
-                poolSelects.forEach(select => {
-                    if (select) {
-                        select.innerHTML = '<option value="">Tous les pools</option>';
-                        pools.forEach(pool => {
-                            const option = document.createElement('option');
-                            option.value = pool.pool;
-                            option.textContent = `${pool.pool} - ${pool.pm_name}`;
-                            select.appendChild(option);
-                        });
-                    }
-                });
-            }
-        })
-        .catch(error => console.error('Erreur:', error));
-}
-
-// Fonction pour charger les agents en fonction du pool sélectionné
-function loadAgentsByPool(poolSelect, agentSelect) {
-    const selectedPool = poolSelect.value;
-    let url = '/JS/STIB/api/em/agents.php';
-    
-    if (selectedPool) {
-        url += `?pool=${encodeURIComponent(selectedPool)}`;
-    }
-
-    fetch(url)
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                const agents = result.agents;
-                agentSelect.innerHTML = '<option value="">Tous les salariés</option>';
-                
-                agents.forEach(agent => {
-                    const option = document.createElement('option');
-                    option.value = agent.id;
-                    option.textContent = `${agent.prenom} ${agent.nom}`;
-                    agentSelect.appendChild(option);
-                });
-            }
-        })
-        .catch(error => console.error('Erreur:', error));
-}
-
-// Event listeners pour les changements de pool
-document.getElementById('selectedPool').addEventListener('change', function() {
-    loadAgentsByPool(this, document.getElementById('selectedAgent'));
-    loadActions();
-});
-
-document.getElementById('selectedPoolVacation').addEventListener('change', function() {
-    loadAgentsByPool(this, document.getElementById('selectedAgentVacation'));
-    loadConges();
-});
-
-        // Fonction pour supprimer une action
         function deleteAction(id) {
             if (confirm('Êtes-vous sûr de vouloir supprimer cette action ?')) {
                 fetch('/JS/STIB/api/em/delete_action.php', {
