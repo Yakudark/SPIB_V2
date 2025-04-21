@@ -68,6 +68,7 @@ require_once '../middleware/auth.php';
         .btn-danger { background: #dc3545; color: white; }
         .btn-success { background: #28a745; color: white; }
         .btn-warning { background: #ffc107; color: #212529; }
+        .btn-secondary { background: #6c757d; color: white; }
         .user-info {
             background: #f8f9fa;
             padding: 15px;
@@ -84,10 +85,11 @@ require_once '../middleware/auth.php';
 <body>
     <div class="container">
         <div class="header">
-            <h1>Dashboard RH</h1>
+            <h1 id="rhDashboardTitle" data-i18n="dashboard">Dashboard RH</h1>
             <div class="actions">
-                <button onclick="planifierEntretien()" class="btn btn-success">Planifier Entretien</button>
-                <button onclick="logout()" class="btn btn-danger">Déconnexion</button>
+                <button onclick="planifierEntretien()" class="btn btn-success" id="planInterviewBtn" data-i18n="planInterview">Planifier Entretien</button>
+                <button id="langSwitchBtnRH" class="btn btn-secondary text-sm"><img id="langFlagRH" src="/JS/STIB/public/assets/nl.svg" alt="Changer la langue" style="width:24px;height:16px;vertical-align:middle;"></button>
+                <button onclick="logout()" class="btn btn-danger" id="logoutBtnRH" data-i18n="logout">Déconnexion</button>
             </div>
         </div>
 
@@ -169,6 +171,7 @@ require_once '../middleware/auth.php';
     </div>
 
     <script src="../public/js/auth.js"></script>
+    <script src="/JS/STIB/public/js/lang.js"></script>
     <script>
         // Vérifier l'authentification
         checkAuth();
@@ -278,6 +281,19 @@ require_once '../middleware/auth.php';
             // À implémenter : marquer un appel comme effectué
             console.log('Marquer appel comme fait:', id);
         }
+    </script>
+    <script>
+        function updateLangFlagRH() {
+            const flag = document.getElementById('langFlagRH');
+            if (!flag) return;
+            flag.src = currentLang === 'fr' ? '/JS/STIB/public/assets/nl.svg' : '/JS/STIB/public/assets/fr.svg';
+            flag.alt = currentLang === 'fr' ? 'Néerlandais' : 'Français';
+        }
+        setupLangSwitcher('langSwitchBtnRH', updateLangFlagRH);
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAllTexts();
+            updateLangFlagRH();
+        });
     </script>
 </body>
 </html>

@@ -254,7 +254,137 @@ class STIB {
     }
 }
 
-// Initialize the application
+// --- Ajout pour la gestion des langues ---
+const translations = {
+    fr: {
+        dashboard: 'Tableau de bord',
+        employees: 'Employés',
+        interviews: 'Entretiens',
+        services: 'Services',
+        logout: 'Déconnexion',
+        upcomingInterviews: 'Entretiens à venir',
+        requiredActions: 'Actions requises',
+        statistics: 'Statistiques',
+        manageEmployees: 'Gestion des Employés',
+        addEmployee: 'Ajouter un employé',
+        filters: 'Filtres',
+        service: 'Service',
+        pool: 'Pool',
+        role: 'Rôle',
+        availableActions: 'Actions disponibles',
+        interview: 'Entretien',
+        interviewDesc: 'Entretien formel avec l\'employé',
+        call: 'Appel bienveillant',
+        callDesc: 'Prise de nouvelles et soutien',
+        welcomeBack: 'Welcome Back',
+        welcomeBackDesc: 'Entretien de retour',
+        toSchedule: 'À planifier',
+        inProgress: 'En cours',
+        completed: 'Terminé',
+        manageServices: 'Gestion des Services',
+        addService: 'Ajouter un service',
+        details: 'Détails',
+        interviewBtn: 'Entretien',
+        edit: 'Modifier',
+        delete: 'Supprimer',
+        employeesCard: 'Employés',
+        interviewsCard: 'Entretiens',
+        agir: 'Agir',
+        notAssigned: 'Non assigné',
+    },
+    nl: {
+        dashboard: 'Dashboard',
+        employees: 'Werknemers',
+        interviews: 'Gesprekken',
+        services: 'Diensten',
+        logout: 'Afmelden',
+        upcomingInterviews: 'Komende gesprekken',
+        requiredActions: 'Vereiste acties',
+        statistics: 'Statistieken',
+        manageEmployees: 'Beheer van werknemers',
+        addEmployee: 'Werknemer toevoegen',
+        filters: 'Filters',
+        service: 'Dienst',
+        pool: 'Pool',
+        role: 'Rol',
+        availableActions: 'Beschikbare acties',
+        interview: 'Gesprek',
+        interviewDesc: 'Formeel gesprek met de werknemer',
+        call: 'Welzijnsoproep',
+        callDesc: 'Contact opnemen en ondersteuning',
+        welcomeBack: 'Welcome Back',
+        welcomeBackDesc: 'Terugkomgesprek',
+        toSchedule: 'Te plannen',
+        inProgress: 'Bezig',
+        completed: 'Voltooid',
+        manageServices: 'Beheer van diensten',
+        addService: 'Dienst toevoegen',
+        details: 'Details',
+        interviewBtn: 'Gesprek',
+        edit: 'Bewerken',
+        delete: 'Verwijderen',
+        employeesCard: 'Werknemers',
+        interviewsCard: 'Gesprekken',
+        agir: 'Actie',
+        notAssigned: 'Niet toegewezen',
+    }
+};
+// let currentLang = 'fr'; // Désactivé pour éviter les conflits de scope, la variable est globale via lang.js
+let currentLang = 'fr';
+
+function switchLanguage() {
+    currentLang = currentLang === 'fr' ? 'nl' : 'fr';
+    updateAllTexts();
+    updateLangFlag();
+}
+
+function updateAllTexts() {
+    const t = translations[currentLang];
+    // Navbar
+    document.querySelector('[data-page="dashboard"]').textContent = t.dashboard;
+    document.querySelector('[data-page="employees"]').textContent = t.employees;
+    document.querySelector('[data-page="interviews"]').textContent = t.interviews;
+    document.querySelector('[data-page="services"]').textContent = t.services;
+    document.getElementById('logoutBtn').textContent = t.logout;
+    document.getElementById('langSwitchBtn').textContent = currentLang === 'fr' ? 'NL' : 'FR';
+    // Dashboard cards
+    document.querySelector('#dashboard .card:nth-child(1) h3').textContent = t.upcomingInterviews;
+    document.querySelector('#dashboard .card:nth-child(2) h3').textContent = t.requiredActions;
+    document.querySelector('#dashboard .card:nth-child(3) h3').textContent = t.statistics;
+    // Employees
+    document.querySelector('#employees h2').textContent = t.manageEmployees;
+    document.getElementById('addEmployeeBtn').textContent = t.addEmployee;
+    document.querySelector('#employees .card h3').textContent = t.filters;
+    document.querySelector('label[for="serviceFilter"], label.label[for="serviceFilter"]').textContent = t.service;
+    document.querySelector('label[for="poolFilter"], label.label[for="poolFilter"]').textContent = t.pool;
+    document.querySelector('label[for="roleFilter"], label.label[for="roleFilter"]').textContent = t.role;
+    // Interviews
+    document.querySelector('#interviews .card h3').textContent = t.availableActions;
+    document.querySelector('#interviews .card .draggable-card[data-action="entretien"] h4').textContent = t.interview;
+    document.querySelector('#interviews .card .draggable-card[data-action="entretien"] p').textContent = t.interviewDesc;
+    document.querySelector('#interviews .card .draggable-card[data-action="appel_bienveillant"] h4').textContent = t.call;
+    document.querySelector('#interviews .card .draggable-card[data-action="appel_bienveillant"] p').textContent = t.callDesc;
+    document.querySelector('#interviews .card .draggable-card[data-action="welcome_back"] h4').textContent = t.welcomeBack;
+    document.querySelector('#interviews .card .draggable-card[data-action="welcome_back"] p').textContent = t.welcomeBackDesc;
+    document.querySelector('#interviews .card:nth-child(2) h3').textContent = t.toSchedule;
+    document.querySelector('#interviews .card:nth-child(3) h3').textContent = t.inProgress;
+    document.querySelector('#interviews .card:nth-child(4) h3').textContent = t.completed;
+    // Services
+    document.querySelector('#services h2').textContent = t.manageServices;
+    document.getElementById('addServiceBtn').textContent = t.addService;
+}
+
+function updateLangFlag() {
+    const flag = document.getElementById('langFlag');
+    if (!flag) return;
+    flag.src = currentLang === 'fr' ? '/JS/STIB/public/assets/nl.svg' : '/JS/STIB/public/assets/fr.svg';
+    flag.alt = currentLang === 'fr' ? 'Néerlandais' : 'Français';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new STIB();
+    document.getElementById('langSwitchBtn').addEventListener('click', switchLanguage);
+    updateAllTexts();
+    updateLangFlag();
 });
+// --- Fin ajout langues ---

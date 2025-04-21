@@ -65,6 +65,7 @@ require_once '../middleware/auth.php';
         }
         .btn-primary { background: #0066cc; color: white; }
         .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
         .user-info {
             background: #f8f9fa;
             padding: 15px;
@@ -76,8 +77,9 @@ require_once '../middleware/auth.php';
 <body>
     <div class="container">
         <div class="header">
-            <h1>Dashboard Manager</h1>
-            <button onclick="logout()" class="btn btn-danger">Déconnexion</button>
+            <h1 id="managerDashboardTitle" data-i18n="dashboard">Dashboard Manager</h1>
+            <button id="langSwitchBtnManager" class="btn btn-secondary text-sm"><img id="langFlagManager" src="/JS/STIB/public/assets/nl.svg" alt="Changer la langue" style="width:24px;height:16px;vertical-align:middle;"></button>
+            <button onclick="logout()" class="btn btn-danger" id="logoutBtnManager" data-i18n="logout">Déconnexion</button>
         </div>
 
         <div class="user-info" id="userInfo">
@@ -137,6 +139,7 @@ require_once '../middleware/auth.php';
     </div>
 
     <script src="../public/js/auth.js"></script>
+    <script src="/JS/STIB/public/js/lang.js"></script>
     <script>
         // Vérifier l'authentification
         checkAuth();
@@ -172,7 +175,7 @@ require_once '../middleware/auth.php';
                             <button class="btn btn-primary" onclick="viewInterview(${interview.id})">Voir</button>
                         </td>
                     </tr>
-                `).join('') || '<tr><td colspan="4">Aucun entretien planifié</td></tr>';
+                `).join('') || '<tr><td  colspan="4">Aucun entretien planifié</td></tr>';
                 document.getElementById('upcomingInterviews').innerHTML = interviewsHtml;
 
                 // Mettre à jour la liste des équipes
@@ -206,6 +209,22 @@ require_once '../middleware/auth.php';
             // À implémenter : afficher les détails de l'équipe
             console.log('Voir équipe:', id);
         }
+
+        document.getElementById('langSwitchBtnManager').addEventListener('click', function() {
+            currentLang = currentLang === 'fr' ? 'nl' : 'fr';
+            updateAllTexts();
+            updateLangFlagManager();
+        });
+        function updateLangFlagManager() {
+            const flag = document.getElementById('langFlagManager');
+            if (!flag) return;
+            flag.src = currentLang === 'fr' ? '/JS/STIB/public/assets/nl.svg' : '/JS/STIB/public/assets/fr.svg';
+            flag.alt = currentLang === 'fr' ? 'Néerlandais' : 'Français';
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAllTexts();
+            updateLangFlagManager();
+        });
     </script>
 </body>
 </html>

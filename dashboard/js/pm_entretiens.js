@@ -25,7 +25,7 @@ async function loadEntretiens() {
         } else {
             upcomingTableBody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">Aucun entretien à venir</td>
+                    <td data-i18n="noUpcomingInterviews" colspan="5" class="px-6 py-4 text-center text-gray-500">Aucun entretien à venir</td>
                 </tr>
             `;
         }
@@ -52,7 +52,7 @@ async function loadEntretiens() {
         } else {
             historyTableBody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">Aucun entretien dans l'historique</td>
+                    <td data-i18n="noUpcomingInterviews" colspan="5" class="px-6 py-4 text-center text-gray-500">Aucun entretien dans l'historique</td>
                 </tr>
             `;
         }

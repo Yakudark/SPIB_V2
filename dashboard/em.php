@@ -43,23 +43,23 @@ $nb_salaries = $result['nb_salaries'];
                 <?php echo strtoupper(substr($_SESSION['prenom'], 0, 1) . substr($_SESSION['nom'], 0, 1)); ?>
             </div>
             <div>
-                <div class="font-bold"><?php echo htmlspecialchars($_SESSION['prenom'] . ' ' . $_SESSION['nom']); ?></div>
-                <div class="text-sm text-gray-600">Employee Manager</div>
+                <div class="font-bold" id="emName"><?php echo htmlspecialchars($_SESSION['prenom'] . ' ' . $_SESSION['nom']); ?></div>
+                <div class="text-sm text-gray-600" id="emRole" data-i18n="employeeManager">Employee Manager</div>
             </div>
         </div>
-
+        <button id="langSwitchBtnEM" class="btn btn-secondary text-sm w-full mb-4"><img id="langFlagEM" src="/JS/STIB/public/assets/nl.svg" alt="Changer la langue" style="width:24px;height:16px;vertical-align:middle;"></button>
         <!-- Informations -->
         <div class="space-y-4 mb-8">
             <!-- Actions à planifier -->
             <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="text-gray-600 text-center">Actions à planifier</div>
+                <div class="text-gray-600 text-center" id="actionsToPlan" data-i18n="actionsToPlan">Actions à planifier</div>
                 <div class="text-3xl font-bold text-blue-600 text-center" id="actions-count">0</div>
-                <div class="text-sm text-gray-500 text-center">En attente</div>
+                <div class="text-sm text-gray-500 text-center" id="pending" data-i18n="pending">En attente</div>
             </div>
 
             <!-- Entretiens aujourd'hui -->
             <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="text-gray-600 text-center">Entretiens aujourd'hui</div>
+                <div class="text-gray-600 text-center" id="interviewsToday" data-i18n="interviewsToday">Entretiens aujourd'hui</div>
                 <div class="text-3xl font-bold text-green-600 text-center" id="today-interviews-count">0</div>
                 <div class="text-sm text-gray-500 text-center">À réaliser</div>
             </div>
@@ -91,9 +91,9 @@ $nb_salaries = $result['nb_salaries'];
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center space-x-4">
-                        <h2 class="text-xl font-bold text-gray-800">Prochains entretiens</h2>
+                        <h2 id="prochEntretien" class="text-xl font-bold text-gray-800" data-i18n="prochEntretien">Prochains entretiens</h2>
                         <select id="selectedAgentEntretiens" class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                            <option value="">Tous les agents</option>
+                            <option data-i18n="allAgents" value="">Tous les agents</option>
                         </select>
                     </div>
                 </div>
@@ -108,7 +108,7 @@ $nb_salaries = $result['nb_salaries'];
                     <div class="flex items-center space-x-4">
                         <h2 class="text-xl font-bold text-gray-800">Actions à suivre</h2>
                         <select id="selectedAgent" class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                            <option value="">Tous les agents</option>
+                            <option data-i18n="allAgents" value="">Tous les agents</option>
                         </select>
                     </div>
                     <button onclick="openActionModal()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow">
@@ -141,6 +141,20 @@ $nb_salaries = $result['nb_salaries'];
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         <?php include 'js/em_dashboard.js'; ?>
+    </script>
+    <script src="/JS/STIB/public/js/lang.js"></script>
+    <script>
+        function updateLangFlagEM() {
+            const flag = document.getElementById('langFlagEM');
+            if (!flag) return;
+            flag.src = currentLang === 'fr' ? '/JS/STIB/public/assets/nl.svg' : '/JS/STIB/public/assets/fr.svg';
+            flag.alt = currentLang === 'fr' ? 'Néerlandais' : 'Français';
+        }
+        setupLangSwitcher('langSwitchBtnEM', updateLangFlagEM);
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAllTexts();
+            updateLangFlagEM();
+        });
     </script>
 </body>
 </html>

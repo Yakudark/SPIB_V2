@@ -305,7 +305,7 @@ function loadAbsences(agentId) {
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <span class="font-medium">${absence.periodes_12_mois}</span>
-                            <span class="text-xs text-gray-500 ml-1">périodes sur 12 mois</span>
+                            <span data-i18n="periodsOver" class="text-xs text-gray-500 ml-1">périodes sur 12 mois</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             ${absence.commentaire || ''}

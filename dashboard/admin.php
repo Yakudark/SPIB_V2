@@ -19,13 +19,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
     <div class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg">
         <div class="p-4">
             <div class="flex items-center justify-center mb-8">
-                <img src="/JS/STIB/public/assets/STIB_logo.png
-                " alt="STIB Logo" class="h-12">
+                <img src="/JS/STIB/public/assets/STIB_logo.png" alt="STIB Logo" class="h-12">
             </div>
+            <button id="langSwitchBtnAdmin" class="btn btn-secondary text-sm w-full mb-4"><img id="langFlagAdmin" src="/JS/STIB/public/assets/nl.svg" alt="Changer la langue" style="width:24px;height:16px;vertical-align:middle;"></button>
             <nav class="space-y-2">
                 <a href="#" class="flex items-center p-3 text-gray-900 rounded-lg bg-blue-100">
                     <i class="fas fa-users mr-3"></i>
-                    <span>Utilisateurs</span>
+                    <span id="usersNav" data-i18n="users">Utilisateurs</span>
                 </a>
                 <!-- Autres liens de navigation -->
             </nav>
@@ -34,7 +34,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
         <div class="absolute bottom-0 w-full p-4">
             <a href="/JS/STIB/api/auth/logout.php" class="flex items-center justify-center p-3 text-red-600 hover:bg-red-50 rounded-lg">
                 <i class="fas fa-sign-out-alt mr-3"></i>
-                <span>Déconnexion</span>
+                <span id="logoutBtnAdmin" data-i18n="logout">Déconnexion</span>
             </a>
         </div>
     </div>
@@ -43,8 +43,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
     <div class="ml-64 p-8">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-semibold text-gray-900">Gestion des Utilisateurs</h1>
-                <button onclick="openUserModal()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                <h1 id="gestUtilisateur" data-i18n="gestUtilisateur" class="text-2xl font-semibold text-gray-900">Gestion des Utilisateurs</h1>
+                <button data-i18n="addUser" onclick="openUserModal()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                     <i class="fas fa-plus mr-2"></i>Ajouter un utilisateur
                 </button>
             </div>
@@ -90,7 +90,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
                                         </div>
                                         
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700">Rôle</label>
+                                            <label data-i18n="role" class="block text-sm font-medium text-gray-700">Rôle</label>
                                             <select id="role" name="role" required onchange="handleRoleChange(this.value)"
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                                 <option value="">Sélectionner un rôle</option>
@@ -105,7 +105,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
                                     <!-- Deuxième colonne -->
                                     <div class="space-y-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700">Service</label>
+                                            <label id="serviceLabel" data-i18n="service" class="block text-sm font-medium text-gray-700">Service</label>
                                             <select id="pool" name="pool" onchange="handleServiceChange(this.value)"
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                                 <option value="">Sélectionner un service</option>
@@ -236,22 +236,22 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" data-i18n="nom" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Nom
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" data-i18n="prenom" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Prénom
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" data-i18n="username" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Matricule
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" data-i18n="service" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Service
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" data-i18n="role" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Rôle
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" data-i18n="actions" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions
                             </th>
                         </tr>
@@ -275,7 +275,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
                 <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                     <div>
                         <p class="text-sm text-gray-700">
-                            Affichage de <span class="font-medium" id="start-item">-</span> à <span class="font-medium" id="end-item">-</span> sur <span class="font-medium" id="total-items">-</span> utilisateurs
+                            <span data-i18n="pagination_de">Affichage de</span>
+                            <span class="font-medium" id="start-item">-</span>
+                            <span data-i18n="pagination_a">à</span>
+                            <span class="font-medium" id="end-item">-</span>
+                            <span data-i18n="pagination_sur">sur</span>
+                            <span class="font-medium" id="total-items">-</span>
+                            <span data-i18n="pagination_utilisateurs">utilisateurs</span>
                         </p>
                     </div>
                     <div>
@@ -288,6 +294,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
         </div>
     </div>
 
+    <script src="/JS/STIB/public/js/lang.js"></script>
     <script>
         let currentPage = 1;
         let totalPages = 1;
@@ -756,6 +763,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'SuperAdmin') {
             loadUsers(1);
             loadManagers();
             loadServices();
+        });
+
+        function updateLangFlagAdmin() {
+            const flag = document.getElementById('langFlagAdmin');
+            if (!flag) return;
+            flag.src = currentLang === 'fr' ? '/JS/STIB/public/assets/nl.svg' : '/JS/STIB/public/assets/fr.svg';
+            flag.alt = currentLang === 'fr' ? 'Néerlandais' : 'Français';
+        }
+
+        setupLangSwitcher('langSwitchBtnAdmin', updateLangFlagAdmin);
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAllTexts();
+            updateLangFlagAdmin();
         });
     </script>
 </body>

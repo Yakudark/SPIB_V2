@@ -23,9 +23,20 @@ try {
     $database = new Database();
     $pdo = $database->getConnection();
     
-    // Vérifier que l'agent est bien sous la responsabilité de l'EM
-    $checkStmt = $pdo->prepare("SELECT id FROM employee WHERE id = ? AND em_id = ?");
-    $checkStmt->execute([$data['agent_id'], $_SESSION['user_id']]);
+    // Vérifier que l'agent est bien sous la responsabilité de l'EM (dans une des deux tables)
+    $checkQuery = "
+        SELECT id FROM (
+            SELECT id FROM employee WHERE em_id = :em_id
+            UNION
+            SELECT id FROM utilisateurs WHERE em_id = :em_id
+        ) as agents 
+        WHERE id = :agent_id
+    ";
+    $checkStmt = $pdo->prepare($checkQuery);
+    $checkStmt->execute([
+        'em_id' => $_SESSION['user_id'],
+        'agent_id' => $data['agent_id']
+    ]);
     
     if (!$checkStmt->fetch()) {
         echo json_encode(['success' => false, 'error' => 'Agent non autorisé']);

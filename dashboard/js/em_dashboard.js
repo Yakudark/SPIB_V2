@@ -49,7 +49,7 @@ function loadAgentsForModal() {
                 // Mettre à jour le sélecteur dans le tableau des actions
                 const actionSelect = document.getElementById('selectedAgent');
                 if (actionSelect) {
-                    actionSelect.innerHTML = '<option value="">Tous les agents</option>';
+                    actionSelect.innerHTML = '<option data-i18n="allAgents" value="">Tous les agents</option>';
                     agents.forEach(agent => {
                         const option = document.createElement('option');
                         option.value = agent.id;
@@ -61,7 +61,7 @@ function loadAgentsForModal() {
                 // Mettre à jour le sélecteur dans les entretiens
                 const entretienSelect = document.getElementById('selectedAgentEntretiens');
                 if (entretienSelect) {
-                    entretienSelect.innerHTML = '<option value="">Tous les agents</option>';
+                    entretienSelect.innerHTML = '<option data-i18n="allAgents" value="">Tous les agents</option>';
                     agents.forEach(agent => {
                         const option = document.createElement('option');
                         option.value = agent.id;

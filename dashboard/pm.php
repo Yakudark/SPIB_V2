@@ -54,31 +54,31 @@ foreach ($all_salaries as $s) {
                 <?php echo strtoupper(substr($_SESSION['prenom'], 0, 1) . substr($_SESSION['nom'], 0, 1)); ?>
             </div>
             <div>
-                <div class="font-bold"><?php echo htmlspecialchars($_SESSION['prenom'] . ' ' . $_SESSION['nom']); ?></div>
-                <div class="text-sm text-gray-600">Manager</div>
-                <div class="text-sm text-gray-500"><?php echo isset($_SESSION['pool']) ? htmlspecialchars($_SESSION['pool']) : 'Non assigné'; ?></div>
+                <div class="font-bold" id="pmName"><?php echo htmlspecialchars($_SESSION['prenom'] . ' ' . $_SESSION['nom']); ?></div>
+                <div class="text-sm text-gray-600" id="pmRole" data-i18n="manager">Manager</div>
+                <div class="text-sm text-gray-500" id="pmPool"><?php echo isset($_SESSION['pool']) ? htmlspecialchars($_SESSION['pool']) : 'Non assigné'; ?></div>
             </div>
         </div>
-
+        <button id="langSwitchBtnPM" class="btn btn-secondary text-sm w-full mb-4"><img id="langFlagPM" src="/JS/STIB/public/assets/nl.svg" alt="Changer la langue" style="width:24px;height:16px;vertical-align:middle;"></button>
         <!-- Informations -->
         <div class="space-y-4 mb-8">
             <!-- Actions à planifier -->
             <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="text-gray-600 text-center">Actions à planifier</div>
+                <div data-i18n="actionaPlanifier" class="text-gray-600 text-center">Actions à planifier</div>
                 <div class="text-3xl font-bold text-blue-600 text-center" id="actions-count">0</div>
-                <div class="text-sm text-gray-500 text-center">En attente</div>
+                <div data-i18n="pending" class="text-sm text-gray-500 text-center">En attente</div>
             </div>
 
             <!-- Entretiens aujourd'hui -->
             <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="text-gray-600 text-center">Entretiens aujourd'hui</div>
+                <div data-i18n="today" class="text-gray-600 text-center">Entretiens aujourd'hui</div>
                 <div class="text-3xl font-bold text-green-600 text-center" id="today-interviews-count">0</div>
-                <div class="text-sm text-gray-500 text-center">À réaliser</div>
+                <div data-i18n="toSchedule" class="text-sm text-gray-500 text-center">À réaliser</div>
             </div>
 
             <!-- Agents suivis -->
             <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="text-gray-600 text-center">Agents suivis</div>
+                <div data-i18n="agentSuivi" class="text-gray-600 text-center">Agents suivis</div>
                 <div class="text-3xl font-bold text-purple-600 text-center" id="agents-count">0</div>
                 
             </div>
@@ -86,13 +86,13 @@ foreach ($all_salaries as $s) {
 
         <!-- Boutons du bas -->
         <div class="space-y-2">
-            <button onclick="openActionModal()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow">
+            <button data-i18n="nouvelleAction" onclick="openActionModal()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow">
                 <i class="fas fa-plus mr-2"></i>Nouvelle action
             </button>
-            <button onclick="openAbsenceModal()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow">
+            <button data-i18n="ajouterAbsence" onclick="openAbsenceModal()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow">
                 <i class="fas fa-plus mr-2"></i>Ajouter absence
             </button>
-            <a href="/JS/STIB/api/auth/logout.php" class="block w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 border border-red-600 rounded shadow text-center">
+            <a href="/JS/STIB/api/auth/logout.php" data-i18n="logout" class="block w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 border border-red-600 rounded shadow text-center">
                 Déconnexion
             </a>
         </div>
@@ -107,7 +107,7 @@ foreach ($all_salaries as $s) {
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center space-x-4">
-                        <h2 class="text-xl font-bold text-gray-800">Actions à suivre</h2>
+                        <h3 data-i18n="followUpActions" class="text-xl font-bold text-gray-800">Actions à suivre</h2>
                         <select id="selectedAgent" class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                             <option value="">Tous les salariés</option>
                             <?php foreach ($salaries as $salarie): ?>
@@ -123,11 +123,11 @@ foreach ($all_salaries as $s) {
                     <table class="min-w-full divide-y divide-gray-200" id="actions-table">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Agent</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type d'action</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                <th data-i18n="agent" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Agent</th>
+                                <th data-i18n="actionType" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type d'action</th>
+                                <th data-i18n="date" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th data-i18n="status" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                                <th data-i18n="actions" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -140,20 +140,20 @@ foreach ($all_salaries as $s) {
             <!-- Section des absences -->
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-semibold text-gray-700">Suivi des absences</h3>
+                    <h3 data-i18n="absenceTracking" class="text-xl font-bold text-gray-800">Suivi des absences</h3>
                 </div>
                 
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de début</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de fin</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre de jours</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Périodes d'absence</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commentaire</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th data-i18n="agent" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
+                                <th data-i18n="startDate" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de début</th>
+                                <th data-i18n="endDate" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de fin</th>
+                                <th data-i18n="numberOfDays" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre de jours</th>
+                                <th data-i18n="absencePeriods" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Périodes d'absence</th>
+                                <th data-i18n="comment" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commentaire</th>
+                                <th data-i18n="actions" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="absencesTableBody" class="bg-white divide-y divide-gray-200">
@@ -240,5 +240,15 @@ foreach ($all_salaries as $s) {
     </script>
     
     <script src="/JS/STIB/dashboard/js/pm_entretiens.js"></script>
+    <script src="/JS/STIB/public/js/lang.js"></script>
+    <script>
+        function updateLangFlagPM() {
+            const flag = document.getElementById('langFlagPM');
+            if (!flag) return;
+            flag.src = currentLang === 'fr' ? '/JS/STIB/public/assets/nl.svg' : '/JS/STIB/public/assets/fr.svg';
+            flag.alt = currentLang === 'fr' ? 'Néerlandais' : 'Français';
+        }
+        setupLangSwitcher('langSwitchBtnPM', updateLangFlagPM);
+    </script>
 </body>
 </html>

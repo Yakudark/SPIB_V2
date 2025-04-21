@@ -160,7 +160,7 @@ $user = checkRole(['salarié']);
                         <div class="font-medium">${interview.type}</div>
                         <div class="text-sm text-gray-600">Date: ${new Date(interview.date_action).toLocaleDateString()}</div>
                     </div>
-                `).join('') : '<p class="text-gray-500">Aucun entretien à venir</p>';
+                `).join('') : '<p data-i18n="noUpcomingInterviews" class="text-gray-500">Aucun entretien à venir</p>';
             } catch (error) {
                 console.error('Erreur:', error);
             }

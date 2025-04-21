@@ -15,14 +15,15 @@
             <div class="flex justify-between items-center h-16">
                 <div class="text-xl font-bold">STIB</div>
                 <div class="hidden md:flex space-x-4">
-                    <a href="#" class="hover:text-gray-200" data-page="dashboard">Tableau de bord</a>
-                    <a href="#" class="hover:text-gray-200" data-page="employees">Employés</a>
-                    <a href="#" class="hover:text-gray-200" data-page="interviews">Entretiens</a>
-                    <a href="#" class="hover:text-gray-200" data-page="services">Services</a>
+                    <a href="#" class="hover:text-gray-200" data-page="dashboard" data-i18n="dashboard">Tableau de bord</a>
+                    <a href="#" class="hover:text-gray-200" data-page="employees" data-i18n="employees">Employés</a>
+                    <a href="#" class="hover:text-gray-200" data-page="interviews" data-i18n="interviews">Entretiens</a>
+                    <a href="#" class="hover:text-gray-200" data-page="services" data-i18n="services">Services</a>
                 </div>
                 <div class="flex items-center space-x-4">
                     <span id="userInfo" class="text-sm"></span>
-                    <button id="logoutBtn" class="btn btn-secondary text-sm">Déconnexion</button>
+                    <button id="langSwitchBtn" class="btn btn-secondary text-sm"><img id="langFlag" src="/JS/STIB/public/assets/nl.svg" alt="Changer la langue" style="width:24px;height:16px;vertical-align:middle;"></button>
+                    <button id="logoutBtn" class="btn btn-secondary text-sm" data-i18n="logout">Déconnexion</button>
                 </div>
             </div>
         </div>
